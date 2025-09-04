@@ -33,6 +33,8 @@ module.exports = {
         white500: "#FFFFFF",
         subtitle: "#A4A4A4",
         bgBaseColor: "#00060C",
+        borderColor: "#262626",
+        inputBgColor: "#57575733",
       },
     },
   },
