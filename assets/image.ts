@@ -3,3 +3,5 @@ export const ImgFastSplash = require("@/assets/images/fastSplashImg.png");
 export const ImgSecondSplash = require("@/assets/images/secondSplashImg.png");
 export const ImgThirdSplash = require("@/assets/images/thirdSplashImg.png");
 export const ImgFourthSplash = require("@/assets/images/fourthSplashSreen.png");
+export const ImgFlagGhana = require("@/assets/images/flag-ghana.png");
+export const ImgFlagNigeria = require("@/assets/images/flag-nigeria.png");
