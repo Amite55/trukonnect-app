@@ -8,7 +8,7 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import TitleSubTitle from "@/src/Components/TitleSubTitle";
 import ViewProvider from "@/src/Components/ViewProvider";
 import tw from "@/src/lib/tailwind";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { Formik } from "formik";
 import React from "react";
 import * as Yup from "yup";
@@ -68,7 +68,7 @@ const LoginScreen = () => {
           />
           <Formik
             initialValues={{ number: "", password: "" }}
-            onSubmit={(values) => handleLogin(values)}
+            onSubmit={(values) => console.log(values)}
             validationSchema={LoginSchema}
           >
             {({
@@ -168,7 +168,13 @@ const LoginScreen = () => {
                 </View>
                 {/* ======================== button ==================== */}
 
-                <PrimaryButton onPress={handleSubmit} buttonText="Sign In" />
+                <PrimaryButton
+                  onPress={() =>
+                    router.push("/taskPerformerSection/homeTabs/home")
+                  }
+                  // onPress={handleSubmit}
+                  buttonText="Sign In"
+                />
               </View>
             )}
           </Formik>
