@@ -5,6 +5,17 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import tw from "../lib/tailwind";
 
+interface TaskCardProps {
+  userImage: any;
+  profileName: string;
+  date: any;
+  title: string;
+  description: string;
+  total_tokens: number;
+  task_from: string;
+  onPress: () => void;
+}
+
 const TaskCard = ({
   userImage,
   profileName,
@@ -14,7 +25,7 @@ const TaskCard = ({
   total_tokens,
   task_from,
   onPress,
-}) => {
+}: TaskCardProps) => {
   return (
     <View style={tw`gap-3 bg-transparentBG  p-4 rounded-xl `}>
       <View style={tw`flex-row items-center gap-2`}>

@@ -6,3 +6,5 @@ export const ImgFourthSplash = require("@/assets/images/fourthSplashSreen.png");
 export const ImgFlagGhana = require("@/assets/images/flag-ghana.png");
 export const ImgFlagNigeria = require("@/assets/images/flag-nigeria.png");
 export const ImgBgImage = require("@/assets/images/bgImage.png");
+export const ImgCompleteTaskSOS = require("@/assets/images/complete_task_SOS.png");
+export const ImgSuccessGIF = require("@/assets/images/successGIF.gif");

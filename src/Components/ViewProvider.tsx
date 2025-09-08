@@ -2,7 +2,12 @@ import React from "react";
 import { View } from "react-native";
 import tw from "../lib/tailwind";
 
-const ViewProvider = ({ children, containerStyle = {} }) => {
+interface Props {
+  children: React.ReactNode;
+  containerStyle?: any;
+}
+
+const ViewProvider = ({ children, containerStyle = {} }: Props) => {
   return <View style={[tw`bg-bgBaseColor`, containerStyle]}>{children}</View>;
 };
 
