@@ -8,6 +8,7 @@ interface PrimaryButtonProps {
   buttonText?: string;
   loading?: boolean;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
 const PrimaryButton = ({
@@ -16,10 +17,12 @@ const PrimaryButton = ({
   buttonText = "",
   loading = false,
   onPress,
+  disabled = false,
 }: PrimaryButtonProps) => {
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={disabled}
       style={[
         tw`h-12 bg-primaryBtn rounded-full justify-center items-center flex-row gap-2 mb-8`,
         buttonContainerStyle,

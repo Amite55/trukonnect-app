@@ -7,13 +7,14 @@ import {
   BottomSheetModalProvider,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const Wallet = () => {
-  const [searchValue, setSearchValue] = React.useState("");
   const [currencyValue, setCurrencyValue] = React.useState("");
+  const [poinrValue, setPointValue] = React.useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const handleCurrencyModalOpen = useCallback(async () => {
@@ -75,7 +76,9 @@ const Wallet = () => {
             buttonText="Convert Tokens To Cash"
             buttonTextStyle={tw`text-primaryBtn`}
             buttonContainerStyle={tw`bg-secondaryBtn mb-1 mt-6`}
-            onPress={() => handleCurrencyModalOpen()}
+            onPress={() => {
+              handleCurrencyModalOpen();
+            }}
           />
         </View>
 
@@ -94,7 +97,8 @@ const Wallet = () => {
             placeholder="Search by name of task creator"
             placeholderTextColor="#A4A4A4"
             style={tw`w-full text-white500`}
-            onChangeText={(value) => setSearchValue(value)}
+            onChangeText={(value) => setCurrencyValue(value)}
+            keyboardType="numeric"
           />
         </View>
         {/* ====================== notice ------------------ */}
@@ -117,49 +121,72 @@ const Wallet = () => {
         </View>
 
         {/*  ===================== button   ================ */}
-        <PrimaryButton buttonText="Next" buttonContainerStyle={tw`mt-6 mb-1`} />
+        {currencyValue ? (
+          <PrimaryButton
+            buttonText="Next"
+            buttonContainerStyle={tw`mt-6 mb-1`}
+            onPress={() =>
+              router.push(
+                // "/taskPerformerSection/withdrawProcedures/withdrawProcedure"
+                "/taskPerformerSection/withdrawProcedures/purchaseTask"
+              )
+            }
+          />
+        ) : (
+          <PrimaryButton
+            disabled
+            buttonText="Next"
+            buttonContainerStyle={tw`mt-6 mb-1 bg-gray-600`}
+          />
+        )}
+      </ScrollView>
+      {/* =========================== modal point convert ========================= */}
+      <BottomSheetModalProvider>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          snapPoints={["60%", "70%"]}
+          containerStyle={tw` bg-gray-500 bg-opacity-20`}
 
-        {/* =========================== modal point convert ========================= */}
-        <BottomSheetModalProvider>
-          <BottomSheetModal
-            ref={bottomSheetModalRef}
-            snapPoints={["60%", "70%"]}
-            containerStyle={tw`bg-gray-500 bg-opacity-20`}
-
-            //   onDismiss={() => {
-            //     router.back();
-            //   }}
-          >
-            <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
-              <View style={tw`rounded-3xl bg-black px-4 py-6 gap-2`}>
-                <Text
-                  style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
-                >
-                  Number of tokens
-                </Text>
-                <View
-                  style={tw` h-12  flex-row items-center px-4 rounded-xl bg-inputBgColor gap-3 my-3`}
-                >
-                  <SvgXml xml={IconPoint} />
-                  <TextInput
-                    placeholder="Search by name of task creator"
-                    placeholderTextColor="#A4A4A4"
-                    style={tw`w-full text-white500`}
-                    onChangeText={(value) => setCurrencyValue(value)}
-                  />
-                </View>
-
-                <PrimaryButton
-                  buttonText="Convert"
-                  buttonTextStyle={tw`text-white500`}
-                  buttonContainerStyle={tw`bg-primaryBtn mb-1 mt-6`}
-                  onPress={() => handleCurrencyModalClose()}
+          //   onDismiss={() => {
+          //     router.back();
+          //   }}
+        >
+          <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
+            <View style={tw`rounded-3xl bg-black px-4 py-6 gap-2`}>
+              <Text
+                style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
+              >
+                Number of tokens
+              </Text>
+              <View
+                style={tw` h-12  flex-row items-center px-4 rounded-xl bg-inputBgColor gap-3 my-3`}
+              >
+                <SvgXml xml={IconPoint} />
+                <TextInput
+                  placeholder="Search by name of task creator"
+                  placeholderTextColor="#A4A4A4"
+                  style={tw`w-full text-white500`}
+                  onChangeText={(value) => setPointValue(value)}
+                  keyboardType="numeric"
                 />
               </View>
-            </BottomSheetScrollView>
-          </BottomSheetModal>
-        </BottomSheetModalProvider>
-      </ScrollView>
+
+              <PrimaryButton
+                buttonText="Convert"
+                buttonTextStyle={tw`text-white500`}
+                buttonContainerStyle={tw`bg-primaryBtn mb-1 mt-6`}
+                onPress={() => {
+                  handleCurrencyModalClose();
+
+                  router.push(
+                    "/taskPerformerSection/withdrawProcedures/youtubeVideo"
+                  );
+                }}
+              />
+            </View>
+          </BottomSheetScrollView>
+        </BottomSheetModal>
+      </BottomSheetModalProvider>
     </ViewProvider>
   );
 };
