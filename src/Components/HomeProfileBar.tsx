@@ -1,6 +1,7 @@
 import { IconHi, IconNotification } from "@/assets/icons";
 import { ImgThirdSplash } from "@/assets/image";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -27,7 +28,11 @@ const HomeProfileBar = () => {
         <TouchableOpacity>
           <SvgXml xml={IconNotification} />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            router.push("/boutProfiles/profileMenus");
+          }}
+        >
           <Image style={tw`w-10 h-10 rounded-full`} source={ImgThirdSplash} />
         </TouchableOpacity>
       </View>

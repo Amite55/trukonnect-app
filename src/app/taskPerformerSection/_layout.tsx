@@ -7,6 +7,7 @@ const _layout = () => {
       <Stack.Screen name="homeTabs" />
       <Stack.Screen name="task" />
       <Stack.Screen name="withdrawProcedures" />
+      <Stack.Screen name="allWithdrawalHistory" />
     </Stack>
   );
 };

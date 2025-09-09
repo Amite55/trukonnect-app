@@ -11,7 +11,7 @@ export default function Index() {
     try {
       setTimeout(() => {
         // router.replace("/onboardingScreen");
-        router.replace("/taskPerformerSection/homeTabs/home");
+        router.replace("/taskPerformerSection/homeTabs/dashboard");
       }, 3000);
     } catch (error) {
       console.log("Error in main layout:", error);

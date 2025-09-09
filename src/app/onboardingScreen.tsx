@@ -27,7 +27,7 @@ const OnboardingScreen = () => {
         onPress={() => {
           router.replace("/roleScreen");
         }}
-        style={tw`mr-4 w-16 h-14 items-center justify-center rounded-full bg-primaryBtn`}
+        style={tw`mr-4 w-14 h-12 items-center justify-center rounded-full bg-primaryBtn`}
       >
         <SvgXml xml={IconRightArrow} />
       </TouchableOpacity>
