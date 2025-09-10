@@ -9,3 +9,4 @@ export const ImgBgImage = require("@/assets/images/bgImage.png");
 export const ImgCompleteTaskSOS = require("@/assets/images/complete_task_SOS.png");
 export const ImgSuccessGIF = require("@/assets/images/successGIF.gif");
 export const ImgTrukonnectDashboardICon = require("@/assets/images/trukonnectDashboardIcon.png");
+export const ImgchangePasswordBg = require("@/assets/images/changePasswordBg.png");

@@ -9,6 +9,8 @@ const _layout = () => {
       }}
     >
       <Stack.Screen name="profileMenus" />
+      <Stack.Screen name="editProfile" />
+      <Stack.Screen name="socialLinks" />
     </Stack>
   );
 };
