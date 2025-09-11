@@ -91,20 +91,38 @@ const ProfileMenu = () => {
           <MenuCard
             title="Leaderboard"
             icon={IconLeaderboard}
-            onPress={() => {}}
+            onPress={() => {
+              router.push("/boutProfiles/leaderboard");
+            }}
           />
-          <MenuCard title="Referral" icon={IconReferral} onPress={() => {}} />
+          <MenuCard
+            title="Referral"
+            icon={IconReferral}
+            onPress={() => {
+              router.push("/boutProfiles/refferalsScreen");
+            }}
+          />
           <MenuCard
             title="Privacy Policy"
             icon={IconPrivacyPolicy}
-            onPress={() => {}}
+            onPress={() => {
+              router.push("/boutProfiles/PrivacyPolicy");
+            }}
           />
           <MenuCard
             title="Terms & Conditions"
             icon={IconTermsAndConditions}
-            onPress={() => {}}
+            onPress={() => {
+              router.push("/boutProfiles/termsAndConditions");
+            }}
           />
-          <MenuCard title="Support" icon={IconSupport} onPress={() => {}} />
+          <MenuCard
+            title="Support"
+            icon={IconSupport}
+            onPress={() => {
+              router.push("/boutProfiles/support");
+            }}
+          />
         </View>
       </ScrollView>
 

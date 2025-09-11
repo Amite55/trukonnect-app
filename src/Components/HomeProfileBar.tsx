@@ -25,7 +25,11 @@ const HomeProfileBar = () => {
       <View
         style={tw`flex-row bg-transparentBG  h-12 gap-2 w-24 rounded-3xl justify-center items-center`}
       >
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            router.push("/notification");
+          }}
+        >
           <SvgXml xml={IconNotification} />
         </TouchableOpacity>
         <TouchableOpacity

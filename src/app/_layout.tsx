@@ -20,6 +20,13 @@ export default function RootLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="onboardingScreen" />
             <Stack.Screen name="taskPerformerSection" />
+            <Stack.Screen
+              name="Toaster"
+              options={{
+                sheetAllowedDetents: "fitToContents",
+                presentation: "formSheet",
+              }}
+            />
           </Stack>
         </SafeAreaView>
       </SafeAreaProvider>
