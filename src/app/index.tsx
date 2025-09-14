@@ -10,8 +10,8 @@ export default function Index() {
   const decideNavigation = async () => {
     try {
       setTimeout(() => {
-        // router.replace("/onboardingScreen");
-        router.replace("/taskPerformerSection/homeTabs/home");
+        router.replace("/onboardingScreen");
+        // router.replace("/taskCreator/creatorHomTabs/dashboard");
       }, 3000);
     } catch (error) {
       console.log("Error in main layout:", error);

@@ -1,15 +1,12 @@
 import {
   IconCross,
-  IconFacebook,
   IconInstagram,
   IconPlus,
   IconTickMark,
-  IconTiktok,
-  IconTwitter,
-  IconYoutube,
 } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { SocialLinkData } from "@/src/Data/DataAll";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import {
@@ -37,43 +34,43 @@ const SocialLinks = () => {
     editBottomSheetModalRef.current?.dismiss();
   }, []);
 
-  const socialLinkData = [
-    {
-      id: 1,
-      name: "Instagram",
-      icon: IconInstagram,
-      link: "https://www.instagram.com/",
-      status: "Verified",
-    },
-    {
-      id: 2,
-      name: "Facebook",
-      icon: IconFacebook,
-      link: "https://www.instagram.com/",
-      status: "Pending review",
-    },
-    {
-      id: 3,
-      name: "Youtube",
-      icon: IconYoutube,
-      link: "https://www.instagram.com/",
-      status: "Verify",
-    },
-    {
-      id: 4,
-      name: "Twitter",
-      icon: IconTwitter,
-      link: "https://www.instagram.com/",
-      status: "Verify",
-    },
-    {
-      id: 5,
-      name: "Tiktok",
-      icon: IconTiktok,
-      link: "https://www.instagram.com/",
-      status: "Pending review",
-    },
-  ];
+  // const socialLinkData = [
+  //   {
+  //     id: 1,
+  //     name: "Instagram",
+  //     icon: IconInstagram,
+  //     link: "https://www.instagram.com/",
+  //     status: "Verified",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Facebook",
+  //     icon: IconFacebook,
+  //     link: "https://www.instagram.com/",
+  //     status: "Pending review",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Youtube",
+  //     icon: IconYoutube,
+  //     link: "https://www.instagram.com/",
+  //     status: "Verify",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Twitter",
+  //     icon: IconTwitter,
+  //     link: "https://www.instagram.com/",
+  //     status: "Verify",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "Tiktok",
+  //     icon: IconTiktok,
+  //     link: "https://www.instagram.com/",
+  //     status: "Pending review",
+  //   },
+  // ];
 
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-4`}>
@@ -83,7 +80,7 @@ const SocialLinks = () => {
       >
         <BackTitleButton title="Back" />
         <View style={tw`gap-2`}>
-          {socialLinkData.map((item) => {
+          {SocialLinkData.map((item) => {
             return (
               <TouchableOpacity
                 onPress={handleDetailsModalOpen}

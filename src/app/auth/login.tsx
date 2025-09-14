@@ -8,11 +8,9 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import TitleSubTitle from "@/src/Components/TitleSubTitle";
 import ViewProvider from "@/src/Components/ViewProvider";
 import tw from "@/src/lib/tailwind";
-import { Link, router } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { Formik } from "formik";
 import React from "react";
-import * as Yup from "yup";
-
 import {
   ScrollView,
   Text,
@@ -21,8 +19,10 @@ import {
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
+import * as Yup from "yup";
 
 const LoginScreen = () => {
+  const { role } = useLocalSearchParams();
   const [isChecked, setIsChecked] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -169,9 +169,11 @@ const LoginScreen = () => {
                 {/* ======================== button ==================== */}
 
                 <PrimaryButton
-                  onPress={() =>
-                    router.push("/taskPerformerSection/homeTabs/home")
-                  }
+                  onPress={() => {
+                    role === "taskPerformer"
+                      ? router.push("/taskPerformerSection/homeTabs/home")
+                      : router.push("/taskCreator/creatorHomTabs/dashboard");
+                  }}
                   // onPress={handleSubmit}
                   buttonText="Sign In"
                 />

@@ -1,3 +1,11 @@
+import {
+  IconFacebook,
+  IconInstagramMedian,
+  IconTiktok,
+  IconTwitter,
+  IconYoutube,
+} from "@/assets/icons";
+
 export const TaskData = [
   {
     id: 1,
@@ -120,5 +128,130 @@ export const ServiceData = [
     id: 6,
     title: "TikTok",
     icon: "https://example.com/icons/painting.png",
+  },
+];
+
+export const SocialLinkData = [
+  {
+    id: 1,
+    name: "Instagram",
+    icon: IconInstagramMedian,
+    link: "https://www.instagram.com/",
+    status: "Verified",
+  },
+  {
+    id: 2,
+    name: "Facebook",
+    icon: IconFacebook,
+    link: "https://www.instagram.com/",
+    status: "Pending review",
+  },
+  {
+    id: 3,
+    name: "Youtube",
+    icon: IconYoutube,
+    link: "https://www.instagram.com/",
+    status: "Verify",
+  },
+  {
+    id: 4,
+    name: "Twitter",
+    icon: IconTwitter,
+    link: "https://www.instagram.com/",
+    status: "Verify",
+  },
+  {
+    id: 5,
+    name: "Tiktok",
+    icon: IconTiktok,
+    link: "https://www.instagram.com/",
+    status: "Pending review",
+  },
+];
+
+export const TaskWorkingData = [
+  {
+    id: 1,
+    icon: IconFacebook,
+    title: "Fix the leaking sink",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Facebook",
+  },
+  {
+    id: 2,
+    icon: IconInstagramMedian,
+    title: "Instagram Likes",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Instagram",
+  },
+  {
+    id: 3,
+    icon: IconYoutube,
+    title: "YouTube Video Views ",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Youtube",
+  },
+  {
+    id: 4,
+    icon: IconTwitter,
+    title: "Twitter Comments",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Twitter",
+  },
+  {
+    id: 5,
+    icon: IconTiktok,
+    title: "Fix the leaking sink",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Tiktok",
+  },
+  {
+    id: 7,
+    icon: IconTiktok,
+    title: "Fix the leaking sink",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Tiktok",
+  },
+  {
+    id: 6,
+    icon: IconFacebook,
+    title: "Facebook Page Likes",
+    description:
+      "Like the latest Star Bucks ad post on Instagram. Earn 2 tokens instantly for showing your support!.",
+    date: "2023-10-01",
+    time: "14:00",
+    total_tokens: 150,
+    status: "pending",
+    task_from: "Linkedin",
   },
 ];

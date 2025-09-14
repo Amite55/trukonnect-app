@@ -21,6 +21,9 @@ const PrimaryButton = ({
 }: PrimaryButtonProps) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.7}
+      delayPressIn={0}
+      delayPressOut={0}
       onPress={onPress}
       disabled={disabled}
       style={[

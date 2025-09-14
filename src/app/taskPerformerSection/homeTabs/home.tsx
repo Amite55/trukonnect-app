@@ -16,7 +16,9 @@ const Home = () => {
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
       <ScrollView>
         {/* ---------------- header profile section ----------------- */}
-        <HomeProfileBar />
+        <HomeProfileBar
+          onPress={() => router.push("/boutProfiles/profileMenus")}
+        />
 
         {/* ------------------------- Services list  category ----------------   */}
         <FlatList

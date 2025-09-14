@@ -6,7 +6,7 @@ import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import { router } from "expo-router";
 import { Formik } from "formik";
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, TextInput, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import * as Yup from "yup";
@@ -19,6 +19,12 @@ const VerifyNumber = () => {
     { code: "+233", country: "GH(+233)", flag: ImgFlagGhana },
     { code: "+234", country: "NG(+234)", flag: ImgFlagNigeria },
   ];
+
+  useEffect(() => {
+    if (countryData.length > 0) {
+      setValue(countryData[0].code);
+    }
+  }, []);
 
   const NumberSchema = Yup.object().shape({
     number: Yup.string()

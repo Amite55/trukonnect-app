@@ -12,7 +12,7 @@ import ViewProvider from "@/src/Components/ViewProvider";
 import tw from "@/src/lib/tailwind";
 import { Link, router } from "expo-router";
 import { Formik } from "formik";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   Text,
@@ -69,6 +69,12 @@ const SingUpScreen = () => {
     { code: "+233", country: "GH(+233)", flag: ImgFlagGhana },
     { code: "+234", country: "NG(+234)", flag: ImgFlagNigeria },
   ];
+
+  useEffect(() => {
+    if (countryData.length > 0) {
+      setValue(countryData[0].code);
+    }
+  }, []);
 
   return (
     <ViewProvider containerStyle={{ flex: 1 }}>

@@ -7,7 +7,11 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 import tw from "../lib/tailwind";
 
-const HomeProfileBar = () => {
+interface Props {
+  onPress: () => void;
+}
+
+const HomeProfileBar = ({ onPress }) => {
   return (
     <View style={tw`flex-row justify-between items-center mt-6 mb-4`}>
       <View>
@@ -32,11 +36,7 @@ const HomeProfileBar = () => {
         >
           <SvgXml xml={IconNotification} />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            router.push("/boutProfiles/profileMenus");
-          }}
-        >
+        <TouchableOpacity onPress={onPress}>
           <Image style={tw`w-10 h-10 rounded-full`} source={ImgThirdSplash} />
         </TouchableOpacity>
       </View>
