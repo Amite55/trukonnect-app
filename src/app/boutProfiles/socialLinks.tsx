@@ -10,6 +10,7 @@ import { SocialLinkData } from "@/src/Data/DataAll";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
@@ -117,6 +118,14 @@ const SocialLinks = () => {
           ref={editBottomSheetModalRef}
           snapPoints={["98%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              pressBehavior="close"
+            />
+          )}
         >
           <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
             <View

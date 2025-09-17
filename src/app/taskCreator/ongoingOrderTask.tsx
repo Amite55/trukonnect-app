@@ -8,6 +8,7 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
@@ -32,7 +33,7 @@ const OngoingOrderTask = () => {
       <FlatList
         data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={tw`gap-3 py-4`}
+        contentContainerStyle={tw`gap-4 py-4`}
         style={tw`bg-bgBaseColor flex-1 px-4`}
         ListHeaderComponent={() => {
           return (
@@ -71,6 +72,14 @@ const OngoingOrderTask = () => {
           ref={detailsBottomSheetModalRef}
           snapPoints={["60%", "60%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              pressBehavior="close"
+            />
+          )}
         >
           <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
             <View
@@ -93,54 +102,72 @@ const OngoingOrderTask = () => {
                   {"\n"}- React on the post
                 </Text>
 
-                {/* Tokens */}
-                <View style={tw`flex-row items-center justify-between mt-3`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total tokens
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconPoint} />
+                <View style={tw`gap-2`}>
+                  {/* Tokens */}
+                  <View style={tw`flex-row items-center justify-between mt-3`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      200
+                      Total tokens
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconPoint} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        200
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* Task from */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Task from
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconInstagram} />
+                  {/* Task from */}
+                  <View style={tw`flex-row items-center justify-between`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      Instagram
+                      Task from
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconInstagram} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        Instagram
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* date line */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Completed Date
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCalendar} />
+                  {/* date line */}
+                  <View style={tw`flex-row items-center justify-between`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      13 Aug, 2025
+                      Completed Date
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCalendar} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        13 Aug, 2025
+                      </Text>
+                    </View>
+                  </View>
+                  {/* Total Cost */}
+                  <View style={tw`flex-row items-center justify-between`}>
+                    <Text
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                    >
+                      Total Cost
+                    </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCurrencyPrimaryColor} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                      >
+                        5896.00
+                      </Text>
+                    </View>
                   </View>
                 </View>
 
@@ -159,23 +186,6 @@ const OngoingOrderTask = () => {
                     <Text style={tw`text-white500`}>60</Text>
                   </Text>
                 </View>
-                {/* Total Cost */}
-                <View style={tw`flex-row items-center justify-between pt-2`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total Cost
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCurrencyPrimaryColor} />
-                    <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
-                    >
-                      5896.00
-                    </Text>
-                  </View>
-                </View>
-
                 <View style={tw`px-4 mt-2 mb-6`}>
                   <Progress.Bar
                     color="#FD7701"
@@ -184,7 +194,7 @@ const OngoingOrderTask = () => {
                     height={8}
                     progress={0.7}
                     unfilledColor="#333"
-                    width={300}
+                    width={400}
                   />
                 </View>
               </View>

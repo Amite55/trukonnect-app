@@ -11,6 +11,7 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
@@ -34,7 +35,7 @@ const CompleteOrderTask = () => {
       <FlatList
         data={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}
         keyExtractor={(item, index) => index.toString()}
-        contentContainerStyle={tw`gap-3 py-4`}
+        contentContainerStyle={tw`gap-4 py-4`}
         style={tw`bg-bgBaseColor flex-1 px-4`}
         ListHeaderComponent={() => {
           return (
@@ -78,6 +79,14 @@ const CompleteOrderTask = () => {
           ref={detailsBottomSheetModalRef}
           snapPoints={["70%", "70%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              pressBehavior="close"
+            />
+          )}
         >
           <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
             <View
@@ -121,71 +130,73 @@ const CompleteOrderTask = () => {
                   {"\n"}- React on the post
                 </Text>
 
-                {/* Tokens */}
-                <View style={tw`flex-row items-center justify-between mt-3`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total tokens
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconPoint} />
+                <View style={tw`gap-2`}>
+                  {/* Tokens */}
+                  <View style={tw`flex-row items-center justify-between mt-3`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      200
+                      Total tokens
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconPoint} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        200
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* Task from */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Task from
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconInstagram} />
+                  {/* Task from */}
+                  <View style={tw`flex-row items-center justify-between`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      Instagram
+                      Task from
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconInstagram} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        Instagram
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* date line */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Completed Date
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCalendar} />
+                  {/* date line */}
+                  <View style={tw`flex-row items-center justify-between`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      13 Aug, 2025
+                      Completed Date
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCalendar} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        13 Aug, 2025
+                      </Text>
+                    </View>
                   </View>
-                </View>
 
-                {/* Total Cost */}
-                <View style={tw`flex-row items-center justify-between pt-2`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total Cost
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCurrencyPrimaryColor} />
+                  {/* Total Cost */}
+                  <View style={tw`flex-row items-center justify-between pt-2`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      5896.00
+                      Total Cost
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCurrencyPrimaryColor} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                      >
+                        5896.00
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>

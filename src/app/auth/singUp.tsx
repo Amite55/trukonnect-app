@@ -340,7 +340,7 @@ const SingUpScreen = () => {
           <Text style={tw`font-HalyardDisplayRegular text-sm text-white500`}>
             Do you have an account?{" "}
             <Link href={"/auth/login"} style={tw`text-primaryBtn`}>
-              Sign up
+              Sign in
             </Link>
           </Text>
         </View>

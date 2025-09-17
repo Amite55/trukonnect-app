@@ -3,6 +3,7 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import tw from "@/src/lib/tailwind";
 import {
+  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
@@ -149,6 +150,14 @@ const Wallet = () => {
           ref={bottomSheetModalRef}
           snapPoints={["60%", "70%"]}
           containerStyle={tw` bg-gray-500 bg-opacity-20`}
+          backdropComponent={(props) => (
+            <BottomSheetBackdrop
+              {...props}
+              appearsOnIndex={0}
+              disappearsOnIndex={-1}
+              pressBehavior="close"
+            />
+          )}
 
           //   onDismiss={() => {
           //     router.back();
@@ -166,7 +175,7 @@ const Wallet = () => {
               >
                 <SvgXml xml={IconPoint} />
                 <TextInput
-                  placeholder="Search by name of task creator"
+                  placeholder="Enter number of tokens to Convert"
                   placeholderTextColor="#A4A4A4"
                   style={tw`w-full text-white500`}
                   onChangeText={(value) => setPointValue(value)}

@@ -98,10 +98,10 @@ const YoutubeVideo = () => {
 
             <PrimaryButton
               buttonContainerStyle={tw`w-full my-2`}
-              buttonText="Back to Home"
+              buttonText="Back to Wallet"
               onPress={() => {
                 setShowModal(false);
-                router.push("/taskPerformerSection/homeTabs/home");
+                router.push("/taskPerformerSection/homeTabs/wallet");
               }}
             />
           </View>
