@@ -1,4 +1,9 @@
-import { IconCalendar, IconInstagram, IconPoint } from "@/assets/icons";
+import {
+  IconCalendar,
+  IconCurrencyPrimaryColor,
+  IconInstagram,
+  IconPoint,
+} from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
@@ -153,6 +158,22 @@ const OngoingOrderTask = () => {
                     45/
                     <Text style={tw`text-white500`}>60</Text>
                   </Text>
+                </View>
+                {/* Total Cost */}
+                <View style={tw`flex-row items-center justify-between pt-2`}>
+                  <Text
+                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                  >
+                    Total Cost
+                  </Text>
+                  <View style={tw`flex-row items-center gap-2`}>
+                    <SvgXml xml={IconCurrencyPrimaryColor} />
+                    <Text
+                      style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                    >
+                      5896.00
+                    </Text>
+                  </View>
                 </View>
 
                 <View style={tw`px-4 mt-2 mb-6`}>

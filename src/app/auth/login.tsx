@@ -182,7 +182,7 @@ const LoginScreen = () => {
           </Formik>
         </View>
 
-        <View style={tw`flex-row justify-center `}>
+        <View style={tw`flex-row justify-center mb-1`}>
           <Text style={tw`font-HalyardDisplayRegular text-sm text-white500`}>
             Don’t have an account?{" "}
             <Link href={"/auth/singUp"} style={tw`text-primaryBtn`}>

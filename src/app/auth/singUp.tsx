@@ -336,7 +336,7 @@ const SingUpScreen = () => {
           </Formik>
         </View>
 
-        <View style={tw`flex-row justify-center `}>
+        <View style={tw`flex-row justify-center mb-2`}>
           <Text style={tw`font-HalyardDisplayRegular text-sm text-white500`}>
             Do you have an account?{" "}
             <Link href={"/auth/login"} style={tw`text-primaryBtn`}>

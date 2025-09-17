@@ -83,7 +83,7 @@ const Wallet = () => {
         </View>
 
         <Text style={tw`font-HalyardDisplayMedium text-2xl text-white500 py-2`}>
-          My Wallet
+          Withdrawal Section
         </Text>
         <Text style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}>
           Enter Amount
@@ -94,7 +94,7 @@ const Wallet = () => {
         >
           <SvgXml xml={IconCurrency} />
           <TextInput
-            placeholder="Search by name of task creator"
+            placeholder="Enter the amount for withdraw"
             placeholderTextColor="#A4A4A4"
             style={tw`w-full text-white500`}
             onChangeText={(value) => setCurrencyValue(value)}
@@ -113,9 +113,12 @@ const Wallet = () => {
             <Text
               style={tw`font-HalyardDisplayRegular text-base text-white500`}
             >
-              Please take screenshots of the completed tasks and upload them
-              from Task section. Also add your social media account at profile
-              in linked social account.
+              If you want to withdraw your balance, you must have at least 100
+              followers on any of your social media accounts{" "}
+              <Text>
+                *Also purchase at least one task by trukonnect app & add that
+                account at my profile section in link social account.
+              </Text>
             </Text>
           </Text>
         </View>

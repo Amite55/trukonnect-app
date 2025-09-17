@@ -1,5 +1,6 @@
 import {
   IconCalendar,
+  IconCurrencyPrimaryColor,
   IconInstagram,
   IconMultipleUser,
   IconPoint,
@@ -167,6 +168,23 @@ const CompleteOrderTask = () => {
                       style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                     >
                       13 Aug, 2025
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Total Cost */}
+                <View style={tw`flex-row items-center justify-between pt-2`}>
+                  <Text
+                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                  >
+                    Total Cost
+                  </Text>
+                  <View style={tw`flex-row items-center gap-2`}>
+                    <SvgXml xml={IconCurrencyPrimaryColor} />
+                    <Text
+                      style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                    >
+                      5896.00
                     </Text>
                   </View>
                 </View>
