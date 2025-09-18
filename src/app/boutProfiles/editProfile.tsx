@@ -1,4 +1,4 @@
-import { IconCross, IconEditCamera } from "@/assets/icons";
+import { IconCross, IconEditCamera, IconLogout } from "@/assets/icons";
 import { ImgFastSplash } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
@@ -11,8 +11,9 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -23,6 +24,7 @@ import { SvgXml } from "react-native-svg";
 
 const EditProfile = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleEditModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -106,12 +108,20 @@ const EditProfile = () => {
           </View>
         </View>
 
-        {/* ---------------- edit profile Button ---------------- */}
-        <PrimaryButton
-          onPress={() => handleEditModalOpen()}
-          buttonText="Edit Profile"
-          buttonContainerStyle={tw`mb-3`}
-        />
+        <View>
+          <PrimaryButton
+            onPress={() => setModalVisible(true)}
+            buttonText="Delete your account"
+            buttonTextStyle={tw`text-red-600`}
+            buttonContainerStyle={tw`mb-3 bg-red-950`}
+          />
+          {/* ---------------- edit profile Button ---------------- */}
+          <PrimaryButton
+            onPress={() => handleEditModalOpen()}
+            buttonText="Edit Profile"
+            buttonContainerStyle={tw`mb-3`}
+          />
+        </View>
       </ScrollView>
 
       {/* =============================== edit modal =============================== */}
@@ -181,6 +191,46 @@ const EditProfile = () => {
           </BottomSheetScrollView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
+
+      {/* ================================ delete account modal ================================ */}
+      {/* ========================== success modal ================ */}
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(!modalVisible)}
+      >
+        <View style={tw`flex-1 justify-center items-center `}>
+          <View
+            style={tw`w-[90%] rounded-2xl bg-gray-800 flex justify-center items-center px-4 py-4 gap-4`}
+          >
+            <SvgXml width={50} height={50} xml={IconLogout} />
+            <Text
+              style={tw`text-red-300 text-xl font-HalyardDisplaySemiBold text-center`}
+            >
+              Are you sure you want to delete your account?
+            </Text>
+            <View style={tw`flex-row items-center  gap-3 pt-6`}>
+              <PrimaryButton
+                buttonContainerStyle={tw`flex-1 my-2 bg-bgBaseColor`}
+                buttonText="Cancel"
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+              />
+              <PrimaryButton
+                buttonTextStyle={tw`text-red-600`}
+                buttonContainerStyle={tw`flex-1 my-2 bg-red-950`}
+                buttonText="Delete"
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ViewProvider>
   );
 };

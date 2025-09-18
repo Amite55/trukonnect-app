@@ -3,6 +3,7 @@ import {
   IconCreator,
   IconKey,
   IconLeaderboard,
+  IconLogout,
   IconPrivacyPolicy,
   IconReferral,
   IconSocialIcon,
@@ -12,7 +13,6 @@ import {
 } from "@/assets/icons";
 import { ImgFastSplash } from "@/assets/image";
 import MenuCard from "@/src/Components/MenuCard";
-import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
@@ -25,22 +25,16 @@ import {
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 const Profile = () => {
-  const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const accountSwitchBottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const handleAccountSwitchModalOpen = useCallback(async () => {
-    editBottomSheetModalRef.current?.present();
+    accountSwitchBottomSheetModalRef.current?.present();
   }, []);
   const handleAccountSwitchModalClose = useCallback(() => {
-    editBottomSheetModalRef.current?.dismiss();
+    accountSwitchBottomSheetModalRef.current?.dismiss();
   }, []);
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-8`}>
@@ -66,7 +60,7 @@ const Profile = () => {
         </TouchableOpacity>
 
         {/* -------------------- profile menu section ---------------- */}
-        <View style={tw`py-4 gap-4`}>
+        <View style={tw`py-6 gap-4`}>
           <MenuCard
             title=" Change Password"
             icon={IconKey}
@@ -123,13 +117,22 @@ const Profile = () => {
               router.push("/boutProfiles/support");
             }}
           />
+          <MenuCard
+            title="Logout"
+            titleStyle={tw`text-red-500`}
+            containerStyle={tw`border  border-red-400 `}
+            icon={IconLogout}
+            onPress={() => {
+              router.push("/roleScreen");
+            }}
+          />
         </View>
       </ScrollView>
 
       {/* =============================== edit modal =============================== */}
       <BottomSheetModalProvider>
         <BottomSheetModal
-          ref={editBottomSheetModalRef}
+          ref={accountSwitchBottomSheetModalRef}
           snapPoints={["98%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
           backdropComponent={(props) => (
@@ -158,7 +161,13 @@ const Profile = () => {
                 </Text>
 
                 <View style={tw`gap-3 py-4`}>
-                  <Pressable
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    delayPressIn={0}
+                    delayPressOut={0}
+                    onPress={() =>
+                      router.replace("/taskPerformerSection/homeTabs/home")
+                    }
                     style={[
                       tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
                     ]}
@@ -176,9 +185,15 @@ const Profile = () => {
                       </Text>
                     </View>
                     <SvgXml xml={IconTaskPerformer} />
-                  </Pressable>
+                  </TouchableOpacity>
 
-                  <Pressable
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    delayPressIn={0}
+                    delayPressOut={0}
+                    onPress={() =>
+                      router.push("/taskCreator/creatorHomTabs/dashboard")
+                    }
                     style={[
                       tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
                     ]}
@@ -196,16 +211,16 @@ const Profile = () => {
                       </Text>
                     </View>
                     <SvgXml xml={IconCreator} />
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               </View>
 
               <View style={tw`gap-3`}>
-                <PrimaryButton
+                {/* <PrimaryButton
                   onPress={() => handleAccountSwitchModalClose()}
                   buttonContainerStyle={tw`mb-1`}
                   buttonText="Switch"
-                />
+                /> */}
               </View>
             </View>
           </BottomSheetScrollView>

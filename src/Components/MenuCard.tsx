@@ -8,17 +8,36 @@ interface Props {
   onPress: () => void;
   title: string;
   icon: any;
+  titleStyle?: any;
+  containerStyle?: any;
 }
 
-const MenuCard = ({ title, icon, onPress }: Props) => {
+const MenuCard = ({
+  title,
+  icon,
+  onPress,
+  titleStyle = "",
+  containerStyle = "",
+}: Props) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.7}
+      delayPressIn={0}
+      delayPressOut={0}
       onPress={onPress}
-      style={tw`flex-row items-center justify-between p-4 bg-inputBgColor rounded-2xl `}
+      style={[
+        tw`flex-row items-center justify-between p-4 bg-inputBgColor rounded-2xl `,
+        containerStyle,
+      ]}
     >
       <View style={tw`flex-row items-center gap-2`}>
         <SvgXml xml={icon} />
-        <Text style={tw`font-HalyardDisplaySemiBold text-base text-subtitle`}>
+        <Text
+          style={[
+            tw` font-HalyardDisplaySemiBold text-base text-subtitle`,
+            titleStyle,
+          ]}
+        >
           {title}
         </Text>
       </View>
