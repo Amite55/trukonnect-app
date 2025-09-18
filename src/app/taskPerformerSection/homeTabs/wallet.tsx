@@ -95,7 +95,7 @@ const Wallet = () => {
         >
           <SvgXml xml={IconCurrency} />
           <TextInput
-            placeholder="Enter the amount for withdraw"
+            placeholder="Enter the amount for withdrawal"
             placeholderTextColor="#A4A4A4"
             style={tw`w-full text-white500`}
             onChangeText={(value) => setCurrencyValue(value)}
