@@ -95,7 +95,7 @@ const Wallet = () => {
         >
           <SvgXml xml={IconCurrency} />
           <TextInput
-            placeholder="Enter the amount for withdrawal"
+            placeholder="Enter the amount for Withdrawal"
             placeholderTextColor="#A4A4A4"
             style={tw`w-full text-white500`}
             onChangeText={(value) => setCurrencyValue(value)}
@@ -107,7 +107,7 @@ const Wallet = () => {
           <SvgXml xml={IconWarring} />
 
           <Text
-            numberOfLines={3}
+            // numberOfLines={3}
             style={tw`flex-1 font-HalyardDisplaySemiBold text-base text-red-600`}
           >
             Note:{" "}

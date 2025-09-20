@@ -126,7 +126,7 @@ const SingUpScreen = () => {
                     onChangeText={handleChange("email")}
                     onBlur={handleBlur("email")}
                     value={values.email}
-                    placeholder="Enter your phone Email"
+                    placeholder="Enter your Email"
                     placeholderTextColor="#A4A4A4"
                     style={tw`w-full text-white500`}
                   />
@@ -279,7 +279,7 @@ const SingUpScreen = () => {
                       onChangeText={handleChange("CPassword")}
                       onBlur={handleBlur("CPassword")}
                       value={values.CPassword}
-                      placeholder="CPassword"
+                      placeholder="Retype Password"
                       placeholderTextColor="#A4A4A4"
                       style={tw` text-white500`}
                       secureTextEntry={!showConfirmPassword}

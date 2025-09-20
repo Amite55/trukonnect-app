@@ -104,7 +104,7 @@ const TaskDetails = () => {
         {/* Proof uploader */}
         <View style={tw`mt-4`}>
           <Text style={tw`font-HalyardDisplayRegular text-base text-white500`}>
-            Uploaded proof of completion
+            Upload proof of completion
           </Text>
         </View>
 
@@ -135,9 +135,9 @@ const TaskDetails = () => {
             <Text
               style={tw`font-HalyardDisplayRegular text-base text-white500`}
             >
-              Please take screenshots of the completed tasks and upload them
-              from Task section. Also add your social media account at profile
-              in linked social account.
+              Please upload screenshots of your completed tasks here and ensure
+              your social media accounts are linked in your profile settings
+              before submitting.
             </Text>
           </Text>
         </View>

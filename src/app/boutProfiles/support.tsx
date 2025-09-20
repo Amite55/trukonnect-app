@@ -62,7 +62,7 @@ const Support = () => {
           <Text
             style={tw`font-HalyardDisplaySemiBold text-xl text-white500 pt-4`}
           >
-            Describe the issue
+            Attach Screenshots of the Issue
           </Text>
 
           <View style={tw`py-6 flex-row gap-4 px-2`}>

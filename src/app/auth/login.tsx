@@ -162,7 +162,7 @@ const LoginScreen = () => {
                       href={"/auth/verifyNumber"}
                       style={tw`text-primaryBtn underline`}
                     >
-                      Forget password?
+                      Forgot password?
                     </Link>
                   </Text>
                 </View>

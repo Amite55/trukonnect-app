@@ -99,7 +99,7 @@ const RefferalsScreen = () => {
             <Text
               style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
             >
-              of friend’s first cash out
+              Brands first Deposit
             </Text>
           </View>
         </View>

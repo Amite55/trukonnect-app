@@ -73,8 +73,14 @@ const Notification = () => {
       }}
       renderItem={({ item }) => {
         return (
-          <View
-            style={tw`flex-row items-center justify-between p-4 bg-inputBgColor rounded-2xl`}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              item?.title === "Instagram account verified successfully."
+                ? router.push("/boutProfiles/socialLinks")
+                : router.push("/taskPerformerSection/task/taskHistory");
+            }}
+            style={tw`flex-row items-center justify-between p-4 h-20 bg-inputBgColor rounded-2xl`}
           >
             <View style={tw`flex-row items-center gap-4`}>
               <SvgXml style={tw`w-7 h-7`} xml={item.icon} />
@@ -85,7 +91,7 @@ const Notification = () => {
             <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle`}>
               {item.time}
             </Text>
-          </View>
+          </TouchableOpacity>
         );
       }}
     />

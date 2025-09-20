@@ -3,6 +3,7 @@ import {
   IconInstagram,
   IconPlus,
   IconTickMark,
+  IconWarring,
 } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
@@ -80,6 +81,28 @@ const SocialLinks = () => {
         showsVerticalScrollIndicator={false}
       >
         <BackTitleButton title="Back" />
+
+        {/* ====================== notice ------------------ */}
+
+        <View style={tw`flex-row justify-start gap-2 pb-6`}>
+          <SvgXml xml={IconWarring} />
+
+          <Text
+            numberOfLines={3}
+            style={tw`flex-1 font-HalyardDisplaySemiBold text-base text-red-600`}
+          >
+            Note:{" "}
+            <Text
+              style={tw`font-HalyardDisplayRegular text-base text-white500`}
+            >
+              Linking your social media accounts is required to verify your task
+              submissions and ensure rewards are credited correctly. Any linked
+              account must have at least 100 followers to be approved. If your
+              account has fewer than 100 followers, please purchase followers
+              from TruKonnect before linking.
+            </Text>
+          </Text>
+        </View>
         <View style={tw`gap-2`}>
           {SocialLinkData.map((item) => {
             return (
