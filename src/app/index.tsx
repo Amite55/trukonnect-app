@@ -1,9 +1,10 @@
 import { ImgLogo } from "@/assets/image";
 import tw from "@/src/lib/tailwind";
 import * as Font from "expo-font";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect } from "react";
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
 
 export default function Index() {
@@ -50,17 +51,21 @@ export default function Index() {
     >
       <View />
 
-      <View>
-        <Image source={ImgLogo} />
+      <View style={tw`justify-center items-center`}>
+        <Image style={tw`w-36 h-24`} contentFit="contain" source={ImgLogo} />
 
         <Animated.View
           entering={FadeInUp.duration(800).delay(1000)}
-          style={tw`items-center mt-2`}
+          style={tw`items-center mt-2  px-4`}
         >
-          <Text style={tw` font-GucinaSemiBold text-xl text-white px-1`}>
+          <Text
+            style={tw`font-GucinaRegular text-xl text-white px-4 text-center`}
+          >
             Trukonnect
           </Text>
-          <Text style={tw`font-HalyardDisplayRegular text-sm text-primaryBtn`}>
+          <Text
+            style={tw`font-HalyardDisplayRegular text-sm text-primaryBtn text-center`}
+          >
             True Fans, real rewards
           </Text>
         </Animated.View>

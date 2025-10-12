@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/androidAppIcon.png",
+        "foregroundImage": "./assets/images/androidIcon.png",
         "backgroundColor": "#00060C"
       },
       "edgeToEdgeEnabled": true,
@@ -22,7 +22,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/androidAppIcon.png"
+      "favicon": "./assets/images/androidIcon.png"
     },
     "plugins": [
       "expo-router",
