@@ -21,8 +21,8 @@ const HomeProfileBar = ({ onPress }) => {
           </Text>
           <SvgXml xml={IconHi} />
         </View>
-        <Text style={tw`font-GucinaBold text-xs text-subtitle`}>
-          WELCOME to the TRUEKONNECT CLUB
+        <Text style={tw`font-GucinaBold text-xs text-subtitle capitalize`}>
+          Welcome to the Trukonnect club
         </Text>
       </View>
 

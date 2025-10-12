@@ -128,16 +128,16 @@ const TaskDetails = () => {
           <SvgXml xml={IconWarring} />
 
           <Text
-            numberOfLines={3}
+            numberOfLines={6}
             style={tw`flex-1 font-HalyardDisplaySemiBold text-base text-red-600`}
           >
             Note:{" "}
             <Text
               style={tw`font-HalyardDisplayRegular text-base text-white500`}
             >
-              Please upload screenshots of your completed tasks here and ensure
-              your social media accounts are linked in your profile settings
-              before submitting.
+              Please take screenshots of the completed tasks and upload them
+              from Task section. Also add your social media account at profile
+              in linked social account.
             </Text>
           </Text>
         </View>

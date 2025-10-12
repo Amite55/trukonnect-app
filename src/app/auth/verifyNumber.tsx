@@ -39,7 +39,7 @@ const VerifyNumber = () => {
       <View style={tw`flex-1 justify-center`}>
         <TitleSubTitle
           title="Verify Contact"
-          subTitle="Enter your contact number for get OTP code"
+          subTitle="Enter your contact number for get otp code"
         />
 
         {/* ============================ contact Number ================================ */}

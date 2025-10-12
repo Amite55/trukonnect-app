@@ -29,7 +29,7 @@ const CreateNewPass = () => {
       <View style={tw`flex-1 justify-center`}>
         <TitleSubTitle
           title="Create a new password"
-          subTitle="Create a new password after reset your password."
+          subTitle="Enter the new password you want to change to"
         />
 
         {/* ============================ contact Number ================================ */}
@@ -100,7 +100,7 @@ const CreateNewPass = () => {
                     onChangeText={handleChange("CPassword")}
                     onBlur={handleBlur("CPassword")}
                     value={values.CPassword}
-                    placeholder="CPassword"
+                    placeholder="Password"
                     placeholderTextColor="#A4A4A4"
                     style={tw` text-white500`}
                     secureTextEntry={!showConfirmPassword}

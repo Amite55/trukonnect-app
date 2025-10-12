@@ -88,7 +88,7 @@ const SocialLinks = () => {
           <SvgXml xml={IconWarring} />
 
           <Text
-            numberOfLines={3}
+            numberOfLines={7}
             style={tw`flex-1 font-HalyardDisplaySemiBold text-base text-red-600`}
           >
             Note:{" "}

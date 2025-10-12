@@ -57,7 +57,7 @@ export default function Index() {
           entering={FadeInUp.duration(800).delay(1000)}
           style={tw`items-center mt-2`}
         >
-          <Text style={tw`font-GucinaSemiBold text-2xl text-white`}>
+          <Text style={tw` font-GucinaSemiBold text-xl text-white px-1`}>
             Trukonnect
           </Text>
           <Text style={tw`font-HalyardDisplayRegular text-sm text-primaryBtn`}>

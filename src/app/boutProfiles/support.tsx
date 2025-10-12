@@ -53,7 +53,7 @@ const Support = () => {
               multiline={true}
               textAlignVertical="top"
               onChangeText={() => {}}
-              placeholder="Briefly describe about your issue"
+              placeholder="Briefly describe your issue"
               placeholderTextColor="#A4A4A4"
               style={tw` text-white500 flex-1  px-4`}
             />

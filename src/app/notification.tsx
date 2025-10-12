@@ -80,15 +80,23 @@ const Notification = () => {
                 ? router.push("/boutProfiles/socialLinks")
                 : router.push("/taskPerformerSection/task/taskHistory");
             }}
-            style={tw`flex-row items-center justify-between p-4 h-20 bg-inputBgColor rounded-2xl`}
+            style={tw`flex-row items-center justify-between p-4  bg-inputBgColor rounded-2xl`}
           >
-            <View style={tw`flex-row items-center gap-4`}>
+            <View style={tw`flex-row items-center gap-4 flex-1`}>
               <SvgXml style={tw`w-7 h-7`} xml={item.icon} />
-              <Text style={tw`font-HalyardDisplayRegular text-base text-white`}>
+              <Text
+                numberOfLines={2}
+                style={tw`font-HalyardDisplayRegular text-base text-white flex-shrink flex-wrap`}
+              >
                 {item.title}
               </Text>
             </View>
-            <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle`}>
+            <Text
+              style={[
+                tw`font-HalyardDisplayRegular text-xs text-subtitle   `,
+                { flexShrink: 0, marginLeft: 8 },
+              ]}
+            >
               {item.time}
             </Text>
           </TouchableOpacity>
