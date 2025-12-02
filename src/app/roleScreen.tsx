@@ -1,9 +1,10 @@
 import { IconCreator, IconTaskPerformer } from "@/assets/icons";
 import { ImgLogo } from "@/assets/image";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
-import { Image, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import RoleCard from "../Components/RoleCard";
 import ViewProvider from "../Components/ViewProvider";
 import tw from "../lib/tailwind";
@@ -13,7 +14,7 @@ const RoleScreen = () => {
     <ViewProvider
       containerStyle={tw`flex-1 flex-grow items-center justify-between bg-bgBaseColor px-4 pt-12`}
     >
-      <Image source={ImgLogo} />
+      <Image contentFit="contain" style={tw`w-40 h-32`} source={ImgLogo} />
       <View style={tw`gap-4`}>
         <Text
           style={tw`text-white500 font-HalyardDisplayMedium text-center text-3xl`}
