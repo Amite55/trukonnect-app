@@ -25,7 +25,7 @@ const PrimaryButton = ({
       delayPressIn={0}
       delayPressOut={0}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       style={[
         tw`h-12 bg-primaryBtn rounded-full justify-center items-center flex-row gap-2 mb-8`,
         buttonContainerStyle,

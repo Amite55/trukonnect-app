@@ -24,10 +24,9 @@ const RoleScreen = () => {
 
         <RoleCard
           onPress={() => {
-            AsyncStorage.setItem("role", "taskPerformer");
+            AsyncStorage.setItem("role", "performer");
             router.push({
               pathname: "/auth/login",
-              params: { role: "taskPerformer" },
             });
           }}
           icon={IconTaskPerformer}
@@ -36,10 +35,9 @@ const RoleScreen = () => {
         />
         <RoleCard
           onPress={() => {
-            AsyncStorage.setItem("role", "creator");
+            AsyncStorage.setItem("role", "brand");
             router.push({
               pathname: "/auth/login",
-              params: { role: "creator" },
             });
           }}
           icon={IconCreator}

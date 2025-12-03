@@ -52,10 +52,10 @@ const authSlices = api.injectEndpoints({
         invalidatesTags: ["singIn"],
       }),
       resendPhoneOTP: builder.mutation<any, any>({
-        query: (data) => ({
+        query: (phone) => ({
           url: "/auth/resend-phone-otp",
           method: "POST",
-          body: data,
+          body: phone,
         }),
         invalidatesTags: ["singIn"],
       }),

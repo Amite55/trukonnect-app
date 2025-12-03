@@ -18,7 +18,7 @@ const baseQueryWithPath: BaseQueryFn<BaseQueryArgs, unknown, unknown> = async (
     const token = await AsyncStorage.getItem("token");
 
     const result: AxiosResponse = await axios({
-      baseURL: "http://10.10.10.90:8000/api",
+      baseURL: "http://10.10.10.90:8001/api",
       ...args,
       url: args.url,
       method: args.method,
@@ -82,4 +82,4 @@ export const api = createApi({
     "payment",
   ],
 });
-export const imageUrl = "http://10.10.10.90:8000/api";
+export const imageUrl = "http://10.10.10.90:8001/api";

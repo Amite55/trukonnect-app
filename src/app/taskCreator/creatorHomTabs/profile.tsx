@@ -16,12 +16,14 @@ import MenuCard from "@/src/Components/MenuCard";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
+import { useSingUpMutation } from "@/src/redux/api/authSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
@@ -29,6 +31,8 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 const Profile = () => {
   const accountSwitchBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  // ============== api end point ==============
+  const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();
 
   const handleAccountSwitchModalOpen = useCallback(async () => {
     accountSwitchBottomSheetModalRef.current?.present();
@@ -36,6 +40,24 @@ const Profile = () => {
   const handleAccountSwitchModalClose = useCallback(() => {
     accountSwitchBottomSheetModalRef.current?.dismiss();
   }, []);
+
+  // ==================   handle sing out ==================
+  const handleSingOut = async () => {
+    try {
+      const res = await singOut({});
+      if (res) {
+        await AsyncStorage.removeItem("token");
+        await AsyncStorage.removeItem("role");
+        router.replace("/onboardingScreen");
+      }
+    } catch (error: any) {
+      console.log("Error in sing out:", error);
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Logout failed" },
+      });
+    }
+  };
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-8`}>
       <ScrollView
@@ -123,7 +145,7 @@ const Profile = () => {
             containerStyle={tw`border  border-red-400 `}
             icon={IconLogout}
             onPress={() => {
-              router.push("/roleScreen");
+              handleSingOut();
             }}
           />
         </View>

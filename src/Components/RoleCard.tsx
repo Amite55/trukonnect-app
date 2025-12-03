@@ -13,8 +13,9 @@ interface Props {
 const RoleCard = ({ icon, title, description, onPress }: Props) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress}
-      style={tw`justify-center items-center rounded-xl border border-borderColor p-4 gap-2 shadow-lg bg-black shadow-borderColor`}
+      style={tw`justify-center items-center rounded-xl border border-borderColor p-4 gap-2 shadow bg-black `}
     >
       <SvgXml xml={icon} />
       <Text style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}>

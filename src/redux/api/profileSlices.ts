@@ -5,6 +5,7 @@ const profileSlices = api.injectEndpoints({
     getMyProfile: builder.query<any, any>({
       query: () => ({
         url: "/app/my/profile",
+        method: "GET",
       }),
       providesTags: ["profile"],
     }),
