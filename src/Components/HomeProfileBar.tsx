@@ -1,23 +1,25 @@
 import { IconHi, IconNotification } from "@/assets/icons";
-import { ImgThirdSplash } from "@/assets/image";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
+import { helpers } from "../lib/helper";
 import tw from "../lib/tailwind";
 
-interface Props {
+interface IProps {
   onPress: () => void;
+  name?: any;
+  image?: string;
 }
 
-const HomeProfileBar = ({ onPress }) => {
+const HomeProfileBar = ({ onPress, name, image }: IProps) => {
   return (
     <View style={tw`flex-row justify-between items-center mt-6 mb-4`}>
       <View>
         <View style={tw`flex-row items-center gap-2`}>
           <Text style={tw`font-GucinaBold text-xl text-white500 `}>
-            Hi! Daniel
+            Hi! {name?.length > 8 ? name?.slice(0, 8) + "..." : name}
           </Text>
           <SvgXml xml={IconHi} />
         </View>
@@ -27,7 +29,7 @@ const HomeProfileBar = ({ onPress }) => {
       </View>
 
       <View
-        style={tw`flex-row bg-transparentBG  h-12 gap-2 w-24 rounded-3xl justify-center items-center`}
+        style={tw`flex-row bg-transparentBG  h-14 gap-3 w-28 rounded-full justify-center items-center`}
       >
         <TouchableOpacity
           onPress={() => {
@@ -37,7 +39,11 @@ const HomeProfileBar = ({ onPress }) => {
           <SvgXml xml={IconNotification} />
         </TouchableOpacity>
         <TouchableOpacity onPress={onPress}>
-          <Image style={tw`w-10 h-10 rounded-full`} source={ImgThirdSplash} />
+          <Image
+            contentFit="cover"
+            style={tw`w-10 h-10 rounded-full`}
+            source={helpers.getImgFullUrl(image || "")}
+          />
         </TouchableOpacity>
       </View>
     </View>

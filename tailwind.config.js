@@ -36,7 +36,7 @@ module.exports = {
         bgBaseColor: "#00060C",
         borderColor: "#262628",
         inputBgColor: "#57575733",
-        transparentBG: "#4D4D4D33",
+        transparentBG: "#4D4D4D30",
         pendingBG: "#FEF3C7",
         pendingText: "#92400E",
         earnBG: "#D1FAE5",

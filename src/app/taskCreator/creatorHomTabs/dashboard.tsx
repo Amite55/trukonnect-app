@@ -13,6 +13,7 @@ import CreatorCounterCard from "@/src/Components/CreatorCounterCard";
 import HomeProfileBar from "@/src/Components/HomeProfileBar";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useProfile } from "@/src/hooks/useProfile";
 import tw from "@/src/lib/tailwind";
 import {
   BottomSheetBackdrop,
@@ -28,6 +29,7 @@ import * as Progress from "react-native-progress";
 import { SvgXml } from "react-native-svg";
 const Dashboard = () => {
   const ResentTaskBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { data: profileData } = useProfile();
 
   const handleResentTaskModalOpen = useCallback(async () => {
     ResentTaskBottomSheetModalRef.current?.present();
@@ -46,6 +48,8 @@ const Dashboard = () => {
           onPress={() => {
             router.push("/taskCreator/creatorHomTabs/profile");
           }}
+          name={profileData?.data?.user?.name}
+          image={profileData?.data?.user?.avatar}
         />
         {/* ======================= task info ======================= */}
         <View style={tw`gap-3`}>

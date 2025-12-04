@@ -35,7 +35,6 @@ const VerifyOTPScreen = () => {
         phone: phone,
         otp: otp,
       }).unwrap();
-      console.log(res, "this is response---------> with otp");
       if (res.status) {
         await AsyncStorage.setItem("token", res?.data?.token);
         if (res.data.user.role === "brand") {

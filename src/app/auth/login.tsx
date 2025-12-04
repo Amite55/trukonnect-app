@@ -10,9 +10,10 @@ import ViewProvider from "@/src/Components/ViewProvider";
 import { useRole } from "@/src/hooks/useRole";
 import tw from "@/src/lib/tailwind";
 import { useSingInMutation } from "@/src/redux/api/authSlices";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
 import { Formik } from "formik";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -27,46 +28,98 @@ import {
 import { SvgXml } from "react-native-svg";
 import * as Yup from "yup";
 
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
 const LoginScreen = () => {
   const role = useRole();
   const [isChecked, setIsChecked] = React.useState<boolean>(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [savedEmail, setSavedEmail] = useState("");
+  const [savedPassword, setSavedPassword] = useState("");
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
 
   // =-================== api end point ================    ==================
   const [singIn, { isLoading: isSingInLoading }] = useSingInMutation();
 
+  // ============== remember me checkbox handler ================
+  const handleCheckBox = async () => {
+    const newValue = !isChecked;
+    setIsChecked(newValue);
+    await AsyncStorage.setItem("rememberMe", JSON.stringify(newValue));
+  };
+
   // -------------------------- handle login --------------------------
-  const handleLogin = async (values) => {
-    console.log(values, "Login values ---->");
+  const handleLogin = async (values: LoginFormValues) => {
     try {
+      const payload = {
+        ...values,
+        role: role,
+        type: "phone",
+      };
+      const response = await singIn(payload).unwrap();
+      // ------------- login info save async storage -------------
+      if (isChecked) {
+        await AsyncStorage.setItem(
+          "loginInfo",
+          JSON.stringify({
+            email: values.email,
+            password: values.password,
+          })
+        );
+      } else {
+        await AsyncStorage.removeItem("loginInfo");
+      }
+      // ============ after the response redirect to respective dashboard ============
+      if (response) {
+        await AsyncStorage.setItem("token", response?.data?.token);
+        router.push(
+          response?.data?.user?.role === "performer"
+            ? "/taskPerformerSection/homeTabs/home"
+            : "/taskCreator/creatorHomTabs/dashboard"
+        );
+      }
     } catch (error: any) {
       console.log(error, "Can't sing in please try");
       router.push({
         pathname: `/Toaster`,
-        params: { res: error?.message || "Can't Login please try again" },
+        params: {
+          res:
+            error?.message ||
+            error?.error ||
+            error ||
+            "Can't Login please try again",
+        },
       });
-    }
-  };
-
-  const handleCheckBox = async () => {
-    setIsChecked(!isChecked);
-    try {
-      // await AsyncStorage.setItem("check", JSON.stringify(isChecked));
-    } catch (error) {
-      console.log(error, "User Info Storage not save ---->");
     }
   };
 
   // ==================== Validation Schema ====================
   const LoginSchema = Yup.object().shape({
-    number: Yup.string()
+    email: Yup.string()
       .matches(/^[0-9]{10,15}$/, "Please enter a valid phone number")
       .required("Phone number is required"),
     password: Yup.string()
       .min(8, "Password must be at least 8 characters")
       .required("Password is required"),
   });
+
+  // -------------------- default render when you can add remember me ---------------------
+  useEffect(() => {
+    const loadData = async () => {
+      const check = await AsyncStorage.getItem("rememberMe");
+      const savedInfo = await AsyncStorage.getItem("loginInfo");
+      if (check === "true" && savedInfo) {
+        const parsed = JSON.parse(savedInfo);
+        // setIsChecked(true);
+        setSavedEmail(parsed.email);
+        setSavedPassword(parsed.password);
+      }
+    };
+    loadData();
+  }, []);
 
   // [--------------------- dynamic keyboard avoiding view useEffect -------------------]
   useEffect(() => {
@@ -105,9 +158,9 @@ const LoginScreen = () => {
                 subTitle="Enter correct information to access your account"
               />
               <Formik
-                initialValues={{ phone: "", password: "" }}
+                initialValues={{ email: savedEmail, password: savedPassword }}
                 validationSchema={LoginSchema}
-                onSubmit={(values) => handleLogin(values)}
+                onSubmit={(values) => handleLogin(values as LoginFormValues)}
               >
                 {({
                   handleChange,
@@ -129,18 +182,18 @@ const LoginScreen = () => {
                     >
                       <SvgXml xml={IconPhone} />
                       <TextInput
-                        onChangeText={handleChange("phone")}
-                        onBlur={handleBlur("phone")}
-                        value={values.phone}
+                        onChangeText={handleChange("email")}
+                        onBlur={handleBlur("email")}
+                        value={values.email}
                         placeholder="Enter your phone number"
                         placeholderTextColor="#A4A4A4"
                         keyboardType="phone-pad"
                         style={tw`flex-1 text-white500 text-base`}
                       />
                     </View>
-                    {errors.phone && touched.phone && (
+                    {errors.email && touched.email && (
                       <Text style={tw`text-red-500 text-xs mt-1`}>
-                        {errors.phone}
+                        {errors.email}
                       </Text>
                     )}
 
@@ -215,15 +268,8 @@ const LoginScreen = () => {
                     {/* ======================== button ==================== */}
 
                     <PrimaryButton
-                      // loading={isSingInLoading}
-                      // onPress={() => {
-                      //   role === "performer"
-                      //     ? router.push("/taskPerformerSection/homeTabs/home")
-                      //     : router.push(
-                      //         "/taskCreator/creatorHomTabs/dashboard"
-                      //       );
-                      // }}
-                      onPress={handleSubmit}
+                      loading={isSingInLoading}
+                      onPress={() => handleSubmit()}
                       buttonText="Sign In"
                     />
                   </View>

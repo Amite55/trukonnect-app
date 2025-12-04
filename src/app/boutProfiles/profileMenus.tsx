@@ -11,11 +11,12 @@ import {
   IconTaskPerformer,
   IconTermsAndConditions,
 } from "@/assets/icons";
-import { ImgFastSplash } from "@/assets/image";
 import MenuCard from "@/src/Components/MenuCard";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useProfile } from "@/src/hooks/useProfile";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
 import { useSingUpMutation } from "@/src/redux/api/authSlices";
 import {
@@ -33,6 +34,7 @@ import { SvgXml } from "react-native-svg";
 
 const ProfileMenu = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const { data: profileData } = useProfile();
 
   // ============== api end point ==============
   const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();
@@ -74,13 +76,19 @@ const ProfileMenu = () => {
           onPress={() => router.push("/boutProfiles/editProfile")}
           style={tw`flex-row items-center gap-4 bg-inputBgColor p-4 rounded-2xl`}
         >
-          <Image style={tw`w-14 h-14 rounded-full `} source={ImgFastSplash} />
+          <Image
+            style={tw`w-14 h-14 rounded-full `}
+            source={helpers.getImgFullUrl(
+              profileData?.data?.user?.avatar || ""
+            )}
+            contentFit="cover"
+          />
           <View style={tw`gap-2`}>
             <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
-              Daniel
+              {profileData?.data?.user?.name}
             </Text>
             <Text style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}>
-              daniel245@gmail.com
+              {profileData?.data?.user?.email}
             </Text>
           </View>
         </TouchableOpacity>

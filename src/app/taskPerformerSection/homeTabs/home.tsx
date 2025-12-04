@@ -3,6 +3,7 @@ import HomeProfileBar from "@/src/Components/HomeProfileBar";
 import TaskCard from "@/src/Components/TaskCard";
 import ViewProvider from "@/src/Components/ViewProvider";
 import { ServiceData, TaskData } from "@/src/Data/DataAll";
+import { useProfile } from "@/src/hooks/useProfile";
 import tw from "@/src/lib/tailwind";
 import { router } from "expo-router";
 import React from "react";
@@ -11,6 +12,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const Home = () => {
   const [selectedService, setSelectedService] = React.useState("All");
+  const { data: profileData } = useProfile();
 
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
@@ -18,6 +20,8 @@ const Home = () => {
         {/* ---------------- header profile section ----------------- */}
         <HomeProfileBar
           onPress={() => router.push("/boutProfiles/profileMenus")}
+          name={profileData?.data?.user?.name}
+          image={profileData?.data?.user?.avatar}
         />
 
         {/* ------------------------- Services list  category ----------------   */}
