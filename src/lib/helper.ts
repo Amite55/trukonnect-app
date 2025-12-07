@@ -15,11 +15,64 @@ export class helpers {
 
   //   ================= Images =================
   static getImgFullUrl(href: string): string {
-    if (!href) return "";
-
+    if (!href || typeof href !== "string") return "";
     if (/^https?:\/\//.test(href)) return href;
     const base = process.env.EXPO_PUBLIC_IMG_URL?.replace(/\/+$/, "");
     const path = href.replace(/^\/+/, "");
     return `${base}/${path}`;
+  }
+
+  //   ================ Date & Time ================
+
+  // Format Date (YYYY-MM-DD → DD/MM/YYYY)
+  static formatDate(dateStr: string): string {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}/${d.getFullYear()}`;
+  }
+
+  // Format Time (24hr → 12hr AM/PM)
+  static formatTime(dateStr: string): string {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    let hours = d.getHours();
+    const minutes = d.getMinutes().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes} ${ampm}`;
+  }
+
+  // Full Date & Time → "DD/MM/YYYY - 4:30 PM"
+  static formatDateTime(dateStr: string): string {
+    if (!dateStr) return "";
+    return `${this.formatDate(dateStr)} - ${this.formatTime(dateStr)}`;
+  }
+
+  // Time ago (e.g., "5 minutes ago")
+  static timeAgo(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const intervals: any = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60,
+      second: 1,
+    };
+
+    for (const key in intervals) {
+      const interval = Math.floor(seconds / intervals[key]);
+      if (interval > 0) {
+        return `${interval} ${key}${interval > 1 ? "s" : ""} ago`;
+      }
+    }
+
+    return "Just now";
   }
 }

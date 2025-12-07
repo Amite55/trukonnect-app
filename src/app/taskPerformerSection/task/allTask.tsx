@@ -1,10 +1,10 @@
 import { IconSearch } from "@/assets/icons";
-import { ImgFourthSplash } from "@/assets/image";
 import TaskCard from "@/src/Components/TaskCard";
 import ViewProvider from "@/src/Components/ViewProvider";
-import { TaskData } from "@/src/Data/DataAll";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
+import { useLazyGetTaskesQuery } from "@/src/redux/api/performarSlices";
 import { router } from "expo-router";
 import React from "react";
 import { FlatList, TextInput, View } from "react-native";
@@ -12,6 +12,22 @@ import { SvgXml } from "react-native-svg";
 
 const AllTask = () => {
   const [searchValue, setSearchValue] = React.useState("");
+
+  // ================= api end point call ======================
+  const [takes, { data: taksResult, isLoading, isError }] =
+    useLazyGetTaskesQuery();
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      await takes({
+        per_page: 10,
+        page: 1,
+        category: searchValue ? searchValue : "",
+        _timestamp: Date.now(),
+      });
+    };
+    fetchData();
+  }, [searchValue]);
 
   const RenderHeader = () => {
     return (
@@ -35,21 +51,26 @@ const AllTask = () => {
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
       <FlatList
-        data={TaskData}
+        data={taksResult?.data?.tasks?.data}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={tw`gap-3 py-4`}
         ListHeaderComponent={RenderHeader}
         renderItem={({ item }) => (
           <TaskCard
-            profileName={item.profileName}
-            userImage={ImgFourthSplash}
-            date={item.date}
-            title={item.title}
-            description={item.description}
-            total_tokens={item.total_tokens}
-            task_from={item.task_from}
+            key={item?.id}
+            profileName={item?.creator?.name}
+            userImage={item?.creator?.avatar}
+            date={helpers.formatDate(item?.created_at)}
+            title={item?.engagement?.engagement_name}
+            description={item?.description}
+            total_tokens={item?.per_perform}
+            task_from={item?.task_from}
+            social_image={item?.social?.icon_url}
             onPress={() =>
-              router.push("/taskPerformerSection/task/taskDetails")
+              router.push({
+                pathname: "/taskPerformerSection/task/taskDetails",
+                params: { taskId: item?.id },
+              })
             }
           />
         )}

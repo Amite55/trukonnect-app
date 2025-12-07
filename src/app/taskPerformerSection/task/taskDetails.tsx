@@ -1,62 +1,133 @@
-import {
-  IconInstagram,
-  IconPlus,
-  IconPoint,
-  IconWarring,
-} from "@/assets/icons";
-import {
-  ImgCompleteTaskSOS,
-  ImgFastSplash,
-  ImgSuccessGIF,
-} from "@/assets/image";
+import { IconPlus, IconPoint, IconWarring } from "@/assets/icons";
+import { ImgCompleteTaskSOS, ImgSuccessGIF } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
+import TaskDetailsSkeleton from "@/src/lib/Skeleton/TaskDetailsSkeleton";
 import tw from "@/src/lib/tailwind";
+import {
+  useSaveTaskesMutation,
+  useSingleTaskDetailsQuery,
+} from "@/src/redux/api/performarSlices";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const TaskDetails = () => {
+  const { id } = useLocalSearchParams();
   const [modalVisible, setModalVisible] = useState(false);
 
+  // ================ api end point call ======================
+  const {
+    data: taskDetailsData,
+    isLoading: isTaskDetailsLoading,
+    isError,
+  } = useSingleTaskDetailsQuery(id);
+  const [saveTask, { isLoading: isSaveTaskLoading }] = useSaveTaskesMutation();
+
+  // console.log(
+  //   taskDetailsData?.data,
+  //   "hare is task id =-=-=-=-=-=-=-=-=-=-=-=-=-=->"
+  // );
+  // ======================= check box handler ======================
+  const [isChecked, setIsChecked] = useState(
+    taskDetailsData?.data?.is_saved_by_user
+  );
+  const handleCheckBox = async () => {
+    // const newValue = !isChecked;
+    try {
+      const res = await saveTask({
+        task_id: taskDetailsData?.data?.id,
+      }).unwrap();
+      console.log(res, "thi is response");
+      if (res) {
+        router.push({
+          pathname: `/Toaster`,
+          params: { res: res?.message || "Success" },
+        });
+      }
+    } catch (error: any) {
+      console.log(error, "Mark not added please try again");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Mark not added please try again" },
+      });
+    }
+  };
+  if (isTaskDetailsLoading) {
+    return (
+      <ViewProvider containerStyle={tw`flex-1 px-4`}>
+        <TaskDetailsSkeleton />
+      </ViewProvider>
+    );
+  }
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
       <ScrollView style={tw`flex-1`}>
         {/* Back button */}
         <BackTitleButton title="Back" onPress={() => router.back()} />
+        <View
+          style={tw`flex-row self-end gap-2 items-center rounded-none pr-4 pb-4`}
+        >
+          {isSaveTaskLoading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <TouchableOpacity
+              onPress={() => handleCheckBox()}
+              style={tw.style(
+                `border border-white500 w-5 h-5  justify-center items-center rounded-sm`,
+                isChecked ? `bg-primaryBtn border-0` : `bg-transparent`
+              )}
+            >
+              {isChecked ? (
+                <Text style={tw`text-white500 text-sm`}>✔</Text>
+              ) : null}
+            </TouchableOpacity>
+          )}
+          <Text style={tw`text-subtitle text-xs`}>Mark for later</Text>
+        </View>
 
         {/* Task card */}
         <View style={tw`gap-3 bg-transparentBG p-4 rounded-xl`}>
           {/* Header */}
           <View style={tw`flex-row items-center gap-2`}>
-            <Image style={tw`w-12 h-12 rounded-full`} source={ImgFastSplash} />
+            <Image
+              contentFit="cover"
+              style={tw`w-12 h-12 rounded-full`}
+              source={helpers.getImgFullUrl(
+                taskDetailsData?.data?.creator?.avatar
+              )}
+            />
             <View>
               <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
-                Star Bucks
+                {taskDetailsData?.data?.creator?.name}
               </Text>
               <Text
                 style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
               >
-                13 Aug, 2025
+                {helpers.formatDate(taskDetailsData?.data?.created_at)}
               </Text>
             </View>
           </View>
 
           {/* Title */}
           <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
-            Instagram Likes
+            {taskDetailsData?.data?.engagement?.engagement_name}
           </Text>
 
           {/* Description */}
           <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-            Like the latest Star Bucks ad post on Instagram. Earn 2 tokens
-            instantly for showing your support!
-            {"\n"}- Tap the link
-            {"\n"}- Check the profile picture
-            {"\n"}- React on the post
+            {taskDetailsData?.data?.description}
           </Text>
 
           {/* Tokens */}
@@ -71,7 +142,7 @@ const TaskDetails = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                200
+                {taskDetailsData?.data?.per_perform}
               </Text>
             </View>
           </View>
@@ -84,11 +155,17 @@ const TaskDetails = () => {
               Task from
             </Text>
             <View style={tw`flex-row items-center gap-2`}>
-              <SvgXml xml={IconInstagram} />
+              <Image
+                contentFit="cover"
+                style={tw`w-6 h-6 rounded-full `}
+                source={helpers.getImgFullUrl(
+                  taskDetailsData?.data?.social?.icon_url
+                )}
+              />
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                Instagram
+                {taskDetailsData?.data?.social?.name}
               </Text>
             </View>
           </View>

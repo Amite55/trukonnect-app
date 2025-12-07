@@ -4,9 +4,11 @@ const TaskPerformerSlices = api.injectEndpoints({
   endpoints: (builder) => {
     return {
       getTaskes: builder.query<any, any>({
-        query: () => ({
-          url: "/app/taskes",
-        }),
+        query: ({ per_page, page, search, category }) => {
+          return {
+            url: `/app/taskes?category=${category}&per_page=${per_page}&page=${page}&search=${search}`,
+          };
+        },
         providesTags: ["taskes"],
       }),
       saveTaskes: builder.mutation<any, any>({
@@ -31,13 +33,21 @@ const TaskPerformerSlices = api.injectEndpoints({
         }),
         providesTags: ["taskes"],
       }),
+      singleTaskDetails: builder.query<any, any>({
+        query: (taskId) => ({
+          url: `/app/tasks/details/${taskId}`,
+        }),
+        providesTags: ["taskes"],
+      }),
     };
   },
 });
 
 export const {
   useGetTaskesQuery,
+  useLazyGetTaskesQuery,
   useSaveTaskesMutation,
   useTaskesSubmittedMutation,
   useGetPerformTaskQuery,
+  useSingleTaskDetailsQuery,
 } = TaskPerformerSlices;

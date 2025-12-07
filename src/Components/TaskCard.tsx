@@ -1,8 +1,9 @@
-import { IconInstagram, IconPoint } from "@/assets/icons";
+import { IconPoint } from "@/assets/icons";
 import { Image } from "expo-image";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
+import { helpers } from "../lib/helper";
 import tw from "../lib/tailwind";
 
 interface TaskCardProps {
@@ -14,6 +15,7 @@ interface TaskCardProps {
   total_tokens: number;
   task_from: string;
   onPress: () => void;
+  social_image?: any;
 }
 
 const TaskCard = ({
@@ -25,11 +27,16 @@ const TaskCard = ({
   total_tokens,
   task_from,
   onPress,
+  social_image,
 }: TaskCardProps) => {
   return (
     <View style={tw`gap-3 bg-transparentBG  p-4 rounded-xl `}>
       <View style={tw`flex-row items-center gap-2`}>
-        <Image style={tw`w-12 h-12 rounded-full `} source={userImage} />
+        <Image
+          contentFit="cover"
+          style={tw`w-12 h-12 rounded-full `}
+          source={helpers.getImgFullUrl(userImage)}
+        />
         <View>
           <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
             {profileName}
@@ -46,7 +53,9 @@ const TaskCard = ({
         {title}
       </Text>
       <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-        {description}
+        {description?.length > 100
+          ? description?.slice(0, 100) + "..."
+          : description}
       </Text>
 
       {/* --------------------------------------------- */}
@@ -60,7 +69,12 @@ const TaskCard = ({
               {total_tokens}
             </Text>
           </View>
-          <SvgXml xml={IconInstagram} />
+
+          <Image
+            contentFit="cover"
+            style={tw`w-6 h-6 rounded-full `}
+            source={helpers.getImgFullUrl(social_image)}
+          />
         </View>
 
         <TouchableOpacity
