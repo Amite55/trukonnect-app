@@ -12,18 +12,21 @@ const TaskPerformerSlices = api.injectEndpoints({
         providesTags: ["taskes"],
       }),
       saveTaskes: builder.mutation<any, any>({
-        query: (tasksId) => ({
-          url: "/app/performer/task/update-status",
+        query: (task_id) => ({
+          url: "/app/savetask",
           method: "POST",
-          body: tasksId,
+          body: task_id,
         }),
         invalidatesTags: ["taskes"],
       }),
       taskesSubmitted: builder.mutation<any, any>({
-        query: (data) => ({
+        query: (formData) => ({
           url: "/app/tasksubmited",
           method: "POST",
-          body: data,
+          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }),
         invalidatesTags: ["taskes"],
       }),
@@ -39,6 +42,12 @@ const TaskPerformerSlices = api.injectEndpoints({
         }),
         providesTags: ["taskes"],
       }),
+      getOngoingTask: builder.query<any, any>({
+        query: () => ({
+          url: "/app/ongoing/tasks",
+        }),
+        providesTags: ["taskes"],
+      }),
     };
   },
 });
@@ -50,4 +59,6 @@ export const {
   useTaskesSubmittedMutation,
   useGetPerformTaskQuery,
   useSingleTaskDetailsQuery,
+  useGetOngoingTaskQuery,
+  useLazyGetOngoingTaskQuery,
 } = TaskPerformerSlices;

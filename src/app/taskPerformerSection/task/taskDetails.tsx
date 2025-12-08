@@ -1,7 +1,8 @@
 import { IconPlus, IconPoint, IconWarring } from "@/assets/icons";
-import { ImgCompleteTaskSOS, ImgSuccessGIF } from "@/assets/image";
+import { ImgSuccessGIF } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useUploadImage } from "@/src/hooks/useUploadImage";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
 import TaskDetailsSkeleton from "@/src/lib/Skeleton/TaskDetailsSkeleton";
@@ -9,10 +10,12 @@ import tw from "@/src/lib/tailwind";
 import {
   useSaveTaskesMutation,
   useSingleTaskDetailsQuery,
+  useTaskesSubmittedMutation,
 } from "@/src/redux/api/performarSlices";
 import { Image } from "expo-image";
+import * as Linking from "expo-linking";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
@@ -26,7 +29,11 @@ import { SvgXml } from "react-native-svg";
 const TaskDetails = () => {
   const { id } = useLocalSearchParams();
   const [modalVisible, setModalVisible] = useState(false);
-
+  const { pickAndUpload, uploading, urls, visibleImage } = useUploadImage({
+    uploadFn,
+    multiple: true,
+    imgLength: 4,
+  });
   // ================ api end point call ======================
   const {
     data: taskDetailsData,
@@ -34,23 +41,62 @@ const TaskDetails = () => {
     isError,
   } = useSingleTaskDetailsQuery(id);
   const [saveTask, { isLoading: isSaveTaskLoading }] = useSaveTaskesMutation();
+  const [submitTask, { isLoading: isSubmitTaskLoading }] =
+    useTaskesSubmittedMutation();
 
-  // console.log(
-  //   taskDetailsData?.data,
-  //   "hare is task id =-=-=-=-=-=-=-=-=-=-=-=-=-=->"
-  // );
+  // -------------------- custom image picker ----------------------
+  const uploadFn = async (uris: string[]) => {
+    const form = new FormData();
+    uris.forEach((uri, index) => {
+      form.append("files", {
+        uri,
+        type: "image/jpeg",
+        name: `photo_${index}.jpg`,
+      } as any);
+    });
+    return form;
+  };
+
+  // ================= submit task    ====================
+  const handleSubmitTask = async () => {
+    try {
+      const formdata = new FormData();
+      formdata.append("task_id", taskDetailsData?.data?.id);
+      visibleImage.forEach((uri, index) => {
+        formdata.append("task_attached[]", {
+          uri: uri,
+          type: "image/jpeg",
+          name: `image_${index}.jpg`,
+        } as any);
+      });
+      const res = await submitTask(formdata).unwrap();
+      if (res) {
+        router.push({
+          pathname: `/Toaster`,
+          params: { res: res?.message || "Task submitted successfully" },
+        });
+      }
+    } catch (error: any) {
+      console.log(error, "task not submitted ------------->");
+      router.push({
+        pathname: `/Toaster`,
+        params: {
+          res: error?.message || "Task not submitted please try again",
+        },
+      });
+    }
+  };
+
   // ======================= check box handler ======================
-  const [isChecked, setIsChecked] = useState(
-    taskDetailsData?.data?.is_saved_by_user
-  );
+  const [isChecked, setIsChecked] = useState();
   const handleCheckBox = async () => {
     // const newValue = !isChecked;
     try {
       const res = await saveTask({
         task_id: taskDetailsData?.data?.id,
       }).unwrap();
-      console.log(res, "thi is response");
       if (res) {
+        // setIsChecked(taskDetailsData?.data?.is_saved_by_user);
         router.push({
           pathname: `/Toaster`,
           params: { res: res?.message || "Success" },
@@ -64,6 +110,13 @@ const TaskDetails = () => {
       });
     }
   };
+
+  // ================ fast render this api ======================
+  useEffect(() => {
+    setIsChecked(taskDetailsData?.data?.is_saved_by_user);
+  }, [taskDetailsData]);
+
+  // ================== loading state -=======================
   if (isTaskDetailsLoading) {
     return (
       <ViewProvider containerStyle={tw`flex-1 px-4`}>
@@ -71,6 +124,7 @@ const TaskDetails = () => {
       </ViewProvider>
     );
   }
+
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
       <ScrollView style={tw`flex-1`}>
@@ -172,6 +226,7 @@ const TaskDetails = () => {
 
           {/* Perform Task button */}
           <PrimaryButton
+            onPress={() => Linking.openURL(taskDetailsData?.data?.link)}
             buttonText="Perform Task"
             buttonContainerStyle={tw`bg-secondaryBtn mt-4 mb-1`}
             buttonTextStyle={tw`text-primaryBtn`}
@@ -186,17 +241,29 @@ const TaskDetails = () => {
         </View>
 
         <View style={tw`py-4 flex-row gap-4 px-2`}>
-          <Image style={tw`w-20 h-28 rounded-lg`} source={ImgCompleteTaskSOS} />
+          {visibleImage && visibleImage.length > 0
+            ? visibleImage.map((uri, index) => (
+                <Image
+                  key={index}
+                  style={tw`w-20 h-28 rounded-lg`}
+                  source={{ uri }}
+                />
+              ))
+            : null}
 
-          <TouchableOpacity
-            style={tw`w-20 h-28 justify-center items-center bg-secondaryBtn rounded-lg`}
-          >
-            <View
-              style={tw`w-12 h-12  justify-center items-center bg-bgBaseColor rounded-3xl`}
+          {visibleImage.length <= 4 && (
+            <TouchableOpacity
+              onPress={() => pickAndUpload()}
+              activeOpacity={0.6}
+              style={tw`w-20 h-28 justify-center items-center bg-secondaryBtn rounded-lg`}
             >
-              <SvgXml xml={IconPlus} />
-            </View>
-          </TouchableOpacity>
+              <View
+                style={tw`w-12 h-12  justify-center items-center bg-bgBaseColor rounded-3xl`}
+              >
+                <SvgXml xml={IconPlus} />
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* ====================== notice ------------------ */}
@@ -221,9 +288,11 @@ const TaskDetails = () => {
 
         {/* ------------- submit button ------------- */}
         <PrimaryButton
+          loading={isSubmitTaskLoading}
           buttonText="Submit Proof"
           buttonContainerStyle={tw`bg-primaryBtn my-6`}
-          onPress={() => setModalVisible(true)}
+          // onPress={() => setModalVisible(true)}
+          onPress={() => handleSubmitTask()}
         />
       </ScrollView>
 

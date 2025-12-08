@@ -7,7 +7,7 @@ const TaskDetailsSkeleton = () => {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      style={tw`flex-1 px-4 bg-base_color`}
+      style={tw`flex-1 px-4 bg-bgBaseColor`}
       contentContainerStyle={tw`pb-10`}
     >
       {/* Back button */}

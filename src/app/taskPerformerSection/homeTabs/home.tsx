@@ -9,11 +9,18 @@ import tw from "@/src/lib/tailwind";
 import { useLazyGetTaskesQuery } from "@/src/redux/api/performarSlices";
 import { router } from "expo-router";
 import React from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 const Home = () => {
   const [selectedService, setSelectedService] = React.useState("All");
+  const [refreshing, setRefreshing] = React.useState(false);
   const { data: profileData } = useProfile();
 
   // ================= api end point call ======================
@@ -32,9 +39,32 @@ const Home = () => {
     fetchData();
   }, [selectedService]);
 
+  // [----------------- refresh function ----------------]
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      await Promise.all([
+        takes({
+          per_page: 10,
+          page: 1,
+          category: selectedService === "All" ? "" : selectedService,
+          _timestamp: Date.now(),
+        }),
+      ]);
+    } catch (error) {
+      console.log(error, "refresh error");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {/* ---------------- header profile section ----------------- */}
         <HomeProfileBar
           onPress={() => router.push("/boutProfiles/profileMenus")}

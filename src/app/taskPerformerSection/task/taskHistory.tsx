@@ -20,9 +20,10 @@ import {
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  ScrollView,
+  ActivityIndicator,
+  FlatList,
   Text,
   TextInput,
   TouchableOpacity,
@@ -32,12 +33,68 @@ import { SvgXml } from "react-native-svg";
 
 const TaskHistory = () => {
   const [searchValue, setSearchValue] = React.useState("");
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [data, setData] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const detailsBottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  // Simulate API call for pagination
+  const fetchData = async (pageNum = 1, isRefresh = false) => {
+    if (loading || (!hasMore && pageNum > 1)) return;
+
+    setLoading(true);
+
+    // Simulate API delay
+    setTimeout(() => {
+      if (isRefresh) {
+        // Reset to initial data on refresh
+        setData([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        setPage(1);
+        setHasMore(true);
+      } else if (pageNum > 1) {
+        // Load more data
+        const newData = Array.from(
+          { length: 5 },
+          (_, i) => data.length + i + 1
+        );
+        setData((prev) => [...prev, ...newData]);
+
+        // Simulate no more data after page 3
+        if (pageNum >= 3) {
+          setHasMore(false);
+        }
+      }
+
+      setLoading(false);
+      setRefreshing(false);
+    }, 1000);
+  };
+
+  const handleLoadMore = () => {
+    if (!loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchData(nextPage);
+    }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchData(1, true);
+  };
+
+  useEffect(() => {
+    fetchData(1);
+  }, []);
 
   const handleFilterModalOpen = useCallback(async () => {
     bottomSheetModalRef.current?.present();
   }, []);
+
   const handleFilterModalClose = useCallback(() => {
     bottomSheetModalRef.current?.dismiss();
   }, []);
@@ -50,112 +107,125 @@ const TaskHistory = () => {
     detailsBottomSheetModalRef.current?.dismiss();
   }, []);
 
+  // Render each task item
+  const renderTaskItem = ({ item, index }) => (
+    <TouchableOpacity
+      onPress={() => handleDetailsModalOpen()}
+      style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
+    >
+      <View style={tw`flex-row items-center justify-between py-4`}>
+        <View style={tw`flex-row items-center gap-2`}>
+          <Image style={tw`w-12 h-12 rounded-full`} source={ImgFastSplash} />
+          <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
+            Star Bucks
+          </Text>
+        </View>
+        <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}>
+          13 Aug, 2025
+        </Text>
+      </View>
+      <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
+        Instagram Likes
+      </Text>
+
+      <View style={tw`flex-row items-center justify-between`}>
+        <View style={tw`flex-row items-center gap-3 py-4`}>
+          <View style={tw`flex-row items-center gap-2`}>
+            <SvgXml xml={IconPoint} />
+            <Text
+              style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+            >
+              500
+            </Text>
+          </View>
+          <SvgXml xml={IconInstagram} />
+        </View>
+
+        <View
+          style={tw.style(
+            "w-24 h-8 justify-center items-center rounded-full bg-slate-600",
+            item === 2 && "bg-pendingBG",
+            item === 4 && "bg-earnBG",
+            item === 6 && "bg-rejectBG"
+          )}
+        >
+          <Text
+            style={tw.style(
+              "font-HalyardDisplayMedium text-sm",
+              item === 2 && "text-pendingText",
+              item === 4 && "text-earnText",
+              item === 6 && "text-rejectText"
+            )}
+          >
+            In Review
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  // Render loading footer
+  const renderFooter = () => {
+    if (!loading) return null;
+
+    return (
+      <View style={tw`py-4 items-center`}>
+        <ActivityIndicator size="small" color="#ffffff" />
+      </View>
+    );
+  };
+
+  // Render list empty component
+  const renderEmptyComponent = () => (
+    <View style={tw`py-8 items-center`}>
+      <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
+        No tasks found
+      </Text>
+    </View>
+  );
+
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-2`}>
-      <ScrollView
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        // contentContainerStyle={tw`flex-1 `}
-      >
+      <View style={tw`flex-1`}>
         <BackTitleButton title="History" onPress={() => router.back()} />
 
-        <View style={tw` flex-row items-center gap-3  `}>
+        <View style={tw`flex-row items-center gap-3 mt-4 mb-4`}>
           <View
-            style={tw`flex-1 h-12  flex-row items-center px-4 rounded-xl bg-inputBgColor gap-3`}
+            style={tw`flex-1 h-12 flex-row items-center px-4 rounded-xl bg-inputBgColor gap-3`}
           >
             <SvgXml xml={IconSearch} />
             <TextInput
               placeholder="Search by name of task creator"
               placeholderTextColor="#A4A4A4"
-              style={tw`w-full text-white500`}
+              style={tw`flex-1 text-white500`}
               onChangeText={(value) => setSearchValue(value)}
+              value={searchValue}
             />
           </View>
 
           <TouchableOpacity
             onPress={() => handleFilterModalOpen()}
-            style={tw`w-12 h-12  justify-center items-center rounded-xl bg-transparentBG`}
+            style={tw`w-12 h-12 justify-center items-center rounded-xl bg-transparentBG`}
           >
             <SvgXml xml={IconFilter} />
           </TouchableOpacity>
         </View>
 
-        <View style={tw`gap-3 py-6`}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((item, index) => {
-            return (
-              <TouchableOpacity
-                onPress={() => {
-                  //   router.push("/taskPerformerSection/task/taskDetails");
-                  handleDetailsModalOpen();
-                }}
-                key={item}
-                style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor`}
-              >
-                <View style={tw`flex-row items-center justify-between py-4`}>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <Image
-                      style={tw`w-12 h-12 rounded-full `}
-                      source={ImgFastSplash}
-                    />
-                    <Text
-                      style={tw`font-HalyardDisplayMedium text-xl text-white500`}
-                    >
-                      Star Bucks
-                    </Text>
-                  </View>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
-                  >
-                    13 Aug, 2025
-                  </Text>
-                </View>
-                <Text
-                  style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
-                >
-                  Instagram Likes
-                </Text>
-
-                <View style={tw`flex-row items-center justify-between`}>
-                  <View style={tw`flex-row items-center gap-3 py-4`}>
-                    <View style={tw`flex-row items-center gap-2`}>
-                      <SvgXml xml={IconPoint} />
-                      <Text
-                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
-                      >
-                        500
-                      </Text>
-                    </View>
-                    <SvgXml xml={IconInstagram} />
-                  </View>
-
-                  <View
-                    style={tw.style(
-                      "w-24 h-8 justify-center items-center rounded-full bg-slate-600",
-                      item === 2 && "bg-pendingBG",
-                      item === 4 && "bg-earnBG",
-                      item === 6 && "bg-rejectBG"
-                    )}
-                  >
-                    <Text
-                      style={tw.style(
-                        "font-HalyardDisplayMedium text-sm",
-                        item === 2 && "text-pendingText",
-                        item === 4 && "text-earnText",
-                        item === 6 && "text-rejectText"
-                      )}
-                    >
-                      {/* {item === 2 && "In Review"}
-                      {item === 4 && "Earned"}
-                      {item === 6 && "Rejected"} */}
-                      In Review
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </ScrollView>
+        <FlatList
+          data={data}
+          renderItem={renderTaskItem}
+          keyExtractor={(item, index) => index.toString()}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={tw`pb-4`}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={renderEmptyComponent}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
+        />
+      </View>
 
       {/* =============================== filter modal =============================== */}
       <BottomSheetModalProvider>
@@ -171,12 +241,8 @@ const TaskHistory = () => {
               pressBehavior="close"
             />
           )}
-
-          //   onDismiss={() => {
-          //     router.back();
-          //   }}
         >
-          <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
+          <BottomSheetScrollView contentContainerStyle={tw`flex-1 bg-black`}>
             <View style={tw`rounded-3xl bg-black px-4 py-6 gap-2`}>
               <View style={tw`flex-row items-center justify-between`}>
                 <Text
@@ -220,7 +286,7 @@ const TaskHistory = () => {
         </BottomSheetModal>
       </BottomSheetModalProvider>
 
-      {/* ================================ task item details  modal =============================== */}
+      {/* ================================ task item details modal =============================== */}
 
       <BottomSheetModalProvider>
         <BottomSheetModal
@@ -236,12 +302,12 @@ const TaskHistory = () => {
             />
           )}
         >
-          <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
+          <BottomSheetScrollView contentContainerStyle={tw`flex-1 bg-black`}>
             <View style={tw`rounded-3xl bg-black px-4 py-6 gap-2`}>
               <View style={tw`flex-row items-center justify-between`}>
                 <View style={tw`flex-row items-center gap-2`}>
                   <Image
-                    style={tw`w-12 h-12 rounded-full `}
+                    style={tw`w-12 h-12 rounded-full`}
                     source={ImgFastSplash}
                   />
                   <Text
@@ -250,9 +316,7 @@ const TaskHistory = () => {
                     Star Bucks
                   </Text>
                 </View>
-                <TouchableOpacity
-                // onPress={() => handleFilterModalClose()}
-                >
+                <TouchableOpacity>
                   <SvgXml xml={IconCross} />
                 </TouchableOpacity>
               </View>
