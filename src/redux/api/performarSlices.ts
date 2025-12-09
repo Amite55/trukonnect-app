@@ -31,8 +31,8 @@ const TaskPerformerSlices = api.injectEndpoints({
         invalidatesTags: ["taskes"],
       }),
       getPerformTask: builder.query<any, any>({
-        query: () => ({
-          url: "/app/myperformtask",
+        query: ({ per_page, page, status, search }) => ({
+          url: `/app/myperformtask?per_page=${per_page}&page=${page}&status=${status}&search=${search}`,
         }),
         providesTags: ["taskes"],
       }),
@@ -43,8 +43,8 @@ const TaskPerformerSlices = api.injectEndpoints({
         providesTags: ["taskes"],
       }),
       getOngoingTask: builder.query<any, any>({
-        query: () => ({
-          url: "/app/ongoing/tasks",
+        query: ({ per_page, page }) => ({
+          url: `/app/ongoing/tasks/?per_page=${per_page}&page=${page}`,
         }),
         providesTags: ["taskes"],
       }),
@@ -58,6 +58,7 @@ export const {
   useSaveTaskesMutation,
   useTaskesSubmittedMutation,
   useGetPerformTaskQuery,
+  useLazyGetPerformTaskQuery,
   useSingleTaskDetailsQuery,
   useGetOngoingTaskQuery,
   useLazyGetOngoingTaskQuery,

@@ -11,7 +11,9 @@ import { ImgCompleteTaskSOS, ImgFastSplash } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
+import { useLazyGetPerformTaskQuery } from "@/src/redux/api/performarSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -24,6 +26,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   Text,
   TextInput,
   TouchableOpacity,
@@ -33,63 +36,70 @@ import { SvgXml } from "react-native-svg";
 
 const TaskHistory = () => {
   const [searchValue, setSearchValue] = React.useState("");
-  const [loading, setLoading] = useState(false);
+  const [filteredData, setFilteredData] = useState("All");
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [data, setData] = useState([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  const [taskHistoryData, setTaskHistoryData] = useState();
+  console.log(filteredData, "------------------------>");
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const detailsBottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  // Simulate API call for pagination
-  const fetchData = async (pageNum = 1, isRefresh = false) => {
-    if (loading || (!hasMore && pageNum > 1)) return;
+  // =================== api end point ==================
+  const [tasksHistory, { isLoading, isFetching }] =
+    useLazyGetPerformTaskQuery();
 
-    setLoading(true);
+  const fetchData = useCallback(async (pageNum = 1, isRefresh = false) => {
+    try {
+      const res = await tasksHistory({
+        page: pageNum,
+        per_page: 10,
+        // ...(searchValue && { search: searchValue }),
+        // status: filteredData,
+        _timestamp: Date.now(),
+      }).unwrap();
+      console.log(res?.data, "this is res------------>");
+      const newData = res?.data?.data || [];
+      const totalPages = res?.data?.last_page || 1;
 
-    // Simulate API delay
-    setTimeout(() => {
       if (isRefresh) {
-        // Reset to initial data on refresh
-        setData([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        // Refresh: replace all data
+        setTaskHistoryData(newData);
         setPage(1);
-        setHasMore(true);
-      } else if (pageNum > 1) {
-        // Load more data
-        const newData = Array.from(
-          { length: 5 },
-          (_, i) => data.length + i + 1
-        );
-        setData((prev) => [...prev, ...newData]);
-
-        // Simulate no more data after page 3
-        if (pageNum >= 3) {
-          setHasMore(false);
-        }
+      } else if (pageNum === 1) {
+        // Initial load or pull to refresh
+        setTaskHistoryData(newData);
+      } else {
+        // Load more: append data
+        setTaskHistoryData((prev) => [...prev, ...newData]);
       }
-
-      setLoading(false);
-      setRefreshing(false);
-    }, 1000);
-  };
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchData(nextPage);
+      setHasMore(pageNum < totalPages);
+    } catch (error) {
+      console.log(error, "error in task history api call");
     }
-  };
+  }, []);
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchData(1, true);
-  };
-
+  // ============= initial render =====================
   useEffect(() => {
     fetchData(1);
-  }, []);
+  }, [fetchData]);
+
+  // Handle pull to refresh
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData(1, true);
+    setRefreshing(false);
+  }, [fetchData]);
+
+  // Handle load more
+  const handleLoadMore = useCallback(async () => {
+    if (!isFetching && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      await fetchData(nextPage);
+    }
+  }, [isFetching, hasMore, page, fetchData]);
 
   const handleFilterModalOpen = useCallback(async () => {
     bottomSheetModalRef.current?.present();
@@ -107,82 +117,110 @@ const TaskHistory = () => {
     detailsBottomSheetModalRef.current?.dismiss();
   }, []);
 
-  // Render each task item
-  const renderTaskItem = ({ item, index }) => (
-    <TouchableOpacity
-      onPress={() => handleDetailsModalOpen()}
-      style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
-    >
-      <View style={tw`flex-row items-center justify-between py-4`}>
-        <View style={tw`flex-row items-center gap-2`}>
-          <Image style={tw`w-12 h-12 rounded-full`} source={ImgFastSplash} />
-          <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
-            Star Bucks
-          </Text>
-        </View>
-        <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}>
-          13 Aug, 2025
-        </Text>
-      </View>
-      <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
-        Instagram Likes
-      </Text>
-
-      <View style={tw`flex-row items-center justify-between`}>
-        <View style={tw`flex-row items-center gap-3 py-4`}>
-          <View style={tw`flex-row items-center gap-2`}>
-            <SvgXml xml={IconPoint} />
-            <Text
-              style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
-            >
-              500
-            </Text>
-          </View>
-          <SvgXml xml={IconInstagram} />
-        </View>
-
-        <View
-          style={tw.style(
-            "w-24 h-8 justify-center items-center rounded-full bg-slate-600",
-            item === 2 && "bg-pendingBG",
-            item === 4 && "bg-earnBG",
-            item === 6 && "bg-rejectBG"
-          )}
-        >
-          <Text
-            style={tw.style(
-              "font-HalyardDisplayMedium text-sm",
-              item === 2 && "text-pendingText",
-              item === 4 && "text-earnText",
-              item === 6 && "text-rejectText"
-            )}
-          >
-            In Review
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
-  // Render loading footer
-  const renderFooter = () => {
-    if (!loading) return null;
+  // -=============== Render footer ======================
+  const renderFooter = useCallback(() => {
+    if (!isFetching || page === 1) return null;
 
     return (
       <View style={tw`py-4 items-center`}>
         <ActivityIndicator size="small" color="#ffffff" />
       </View>
     );
+  }, [isFetching, page]);
+
+  // Render empty component
+  const renderEmptyComponent = useCallback(
+    () => (
+      <View style={tw`py-8 items-center`}>
+        <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
+          {isLoading ? "Loading..." : "No tasks available"}
+        </Text>
+      </View>
+    ),
+    [isLoading]
+  );
+
+  // Render loading indicator for initial load
+  if (isLoading && page === 1) {
+    return (
+      <ViewProvider
+        containerStyle={tw`flex-1 bg-bgBaseColor justify-center items-center`}
+      >
+        <ActivityIndicator size="large" color="#ffffff" />
+      </ViewProvider>
+    );
+  }
+
+  // Render each task item
+  const renderTaskItem = ({ item }: any) => {
+    return (
+      <TouchableOpacity
+        onPress={() => handleDetailsModalOpen()}
+        style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
+      >
+        <View style={tw`flex-row items-center justify-between py-4`}>
+          <View style={tw`flex-row items-center gap-2`}>
+            <Image
+              style={tw`w-12 h-12 rounded-full`}
+              source={helpers.getImgFullUrl(item?.creator?.avatar)}
+            />
+            <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
+              {item?.creator?.name}
+            </Text>
+          </View>
+          <Text
+            style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
+          >
+            {helpers.timeAgo(item?.created_at)}
+          </Text>
+        </View>
+        <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
+          {item?.engagement?.engagement_name}
+        </Text>
+
+        <View style={tw`flex-row items-center justify-between`}>
+          <View style={tw`flex-row items-center gap-3 py-4`}>
+            <View style={tw`flex-row items-center gap-2`}>
+              <SvgXml xml={IconPoint} />
+              <Text
+                style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+              >
+                {item?.task?.per_perform}
+              </Text>
+            </View>
+            <Image
+              style={tw`w-6 h-6 rounded-full`}
+              contentFit="cover"
+              source={helpers.getImgFullUrl(item?.task?.social?.icon_url)}
+            />
+          </View>
+
+          <View
+            style={tw.style(
+              "w-24 h-8 justify-center items-center rounded-full bg-slate-600",
+              item?.status === "Pending" && "bg-pendingBG",
+              item?.status === "Completed" && "bg-earnBG",
+              item?.status === "Rejected" && "bg-rejectBG"
+            )}
+          >
+            <Text
+              style={tw.style(
+                "font-HalyardDisplayMedium text-sm",
+                item?.status === "Pending" && "text-pendingText",
+                item?.status === "Completed" && "text-earnText",
+                item?.status === "Rejected" && "text-rejectText"
+              )}
+            >
+              {item?.status}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
-  // Render list empty component
-  const renderEmptyComponent = () => (
-    <View style={tw`py-8 items-center`}>
-      <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
-        No tasks found
-      </Text>
-    </View>
-  );
+  // ===================== filter data ===========
+  const FilterData = ["All", "Completed", "Rejected", "Pending"];
 
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-2`}>
@@ -212,18 +250,25 @@ const TaskHistory = () => {
         </View>
 
         <FlatList
-          data={data}
+          data={taskHistoryData}
           renderItem={renderTaskItem}
           keyExtractor={(item, index) => index.toString()}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={tw`pb-4`}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmptyComponent}
           refreshing={refreshing}
           onRefresh={handleRefresh}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          removeClippedSubviews={true}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
         />
       </View>
 
@@ -231,7 +276,7 @@ const TaskHistory = () => {
       <BottomSheetModalProvider>
         <BottomSheetModal
           ref={bottomSheetModalRef}
-          snapPoints={["30%", "70%"]}
+          snapPoints={["50%", "70%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
           backdropComponent={(props) => (
             <BottomSheetBackdrop
@@ -256,38 +301,31 @@ const TaskHistory = () => {
               </View>
 
               {/* =============================== filter modal content =============================== */}
-
-              <TouchableOpacity>
-                <Text
-                  style={tw`font-HalyardDisplayRegular text-xl text-white500 text-center`}
-                >
-                  All
-                </Text>
-              </TouchableOpacity>
-              <View style={tw`h-0.5 bg-borderColor mt-2`} />
-              <TouchableOpacity>
-                <Text
-                  style={tw`font-HalyardDisplayRegular text-xl text-white500 text-center`}
-                >
-                  Earned
-                </Text>
-              </TouchableOpacity>
-              <View style={tw`h-0.5 bg-borderColor mt-2`} />
-              <TouchableOpacity>
-                <Text
-                  style={tw`font-HalyardDisplayRegular text-xl text-white500 text-center`}
-                >
-                  Rejected
-                </Text>
-              </TouchableOpacity>
-              <View style={tw`h-0.5 bg-borderColor mt-2`} />
+              <View style={tw`pt-3`}>
+                {FilterData.map((item, index) => (
+                  <View key={index} style={tw``}>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setFilteredData(item);
+                        handleFilterModalClose();
+                      }}
+                    >
+                      <Text
+                        style={tw`font-HalyardDisplayRegular text-xl text-white500 text-center py-2`}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                    <View style={tw`h-0.5 bg-borderColor mt-2`} />
+                  </View>
+                ))}
+              </View>
             </View>
           </BottomSheetScrollView>
         </BottomSheetModal>
       </BottomSheetModalProvider>
 
       {/* ================================ task item details modal =============================== */}
-
       <BottomSheetModalProvider>
         <BottomSheetModal
           ref={detailsBottomSheetModalRef}
@@ -316,7 +354,11 @@ const TaskHistory = () => {
                     Star Bucks
                   </Text>
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleDetailsModalClose();
+                  }}
+                >
                   <SvgXml xml={IconCross} />
                 </TouchableOpacity>
               </View>

@@ -2,6 +2,7 @@ import { IconCurrency, IconPoint, IconWarring } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import tw from "@/src/lib/tailwind";
+import { useGetWalletInfoQuery } from "@/src/redux/api/withdrawalSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -15,8 +16,11 @@ import { SvgXml } from "react-native-svg";
 
 const Wallet = () => {
   const [currencyValue, setCurrencyValue] = React.useState("");
-  const [poinrValue, setPointValue] = React.useState("");
+  const [inputValue, setInputValue] = React.useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  // ==================== api end point ====================
+  const { data: walletData } = useGetWalletInfoQuery({});
 
   const handleCurrencyModalOpen = useCallback(async () => {
     bottomSheetModalRef.current?.present();
@@ -48,7 +52,7 @@ const Wallet = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
               >
-                40
+                {Number(walletData?.data?.[0]?.earn_token).toFixed(1)}
               </Text>
             </View>
           </View>
@@ -59,7 +63,8 @@ const Wallet = () => {
             </Text>
 
             <Text style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}>
-              GH₵ 66
+              {walletData?.data?.[0]?.country?.currency_code}{" "}
+              {Number(walletData?.data?.[0]?.country?.token_rate).toFixed(3)}
             </Text>
           </View>
 
@@ -69,7 +74,8 @@ const Wallet = () => {
             </Text>
 
             <Text style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}>
-              GH₵ 200
+              {walletData?.data?.[0]?.country?.currency_code}{" "}
+              {Number(walletData?.data?.[0]?.balance).toFixed(3)}
             </Text>
           </View>
 
@@ -78,7 +84,14 @@ const Wallet = () => {
             buttonTextStyle={tw`text-primaryBtn`}
             buttonContainerStyle={tw`bg-secondaryBtn mb-1 mt-6`}
             onPress={() => {
-              handleCurrencyModalOpen();
+              if (walletData?.data?.[0]?.earn_token < 1) {
+                router.push({
+                  pathname: "/Toaster",
+                  params: { res: "You don't have enough tokens to withdraw" },
+                });
+              } else {
+                handleCurrencyModalOpen();
+              }
             }}
           />
         </View>
@@ -148,7 +161,7 @@ const Wallet = () => {
       <BottomSheetModalProvider>
         <BottomSheetModal
           ref={bottomSheetModalRef}
-          snapPoints={["60%", "70%"]}
+          snapPoints={["95%"]}
           containerStyle={tw` bg-gray-500 bg-opacity-20`}
           backdropComponent={(props) => (
             <BottomSheetBackdrop
@@ -178,21 +191,23 @@ const Wallet = () => {
                   placeholder="Enter number of tokens to Convert"
                   placeholderTextColor="#A4A4A4"
                   style={tw`w-full text-white500`}
-                  onChangeText={(value) => setPointValue(value)}
+                  onChangeText={(value) => setInputValue(value)}
                   keyboardType="numeric"
                 />
               </View>
 
               <PrimaryButton
+                disabled={!inputValue}
                 buttonText="Convert"
                 buttonTextStyle={tw`text-white500`}
                 buttonContainerStyle={tw`bg-primaryBtn mb-1 mt-6`}
                 onPress={() => {
                   handleCurrencyModalClose();
-
-                  router.push(
-                    "/taskPerformerSection/withdrawProcedures/youtubeVideo"
-                  );
+                  router.push({
+                    pathname:
+                      "/taskPerformerSection/withdrawProcedures/youtubeVideo",
+                    params: { convertToken: inputValue },
+                  });
                 }}
               />
             </View>

@@ -1,145 +1,173 @@
-import { IconInstagram, IconPoint, IconSearch } from "@/assets/icons";
-import { ImgFastSplash } from "@/assets/image";
+import { IconPoint } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
 import { useLazyGetOngoingTaskQuery } from "@/src/redux/api/performarSlices";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const Task = () => {
-  const [searchValue, setSearchValue] = React.useState("");
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [taskData, setTaskData] = useState([1, 2, 3, 4, 5]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [taskData, setTaskData] = useState([]);
 
   // ================ api end point call ======================
-  const [ongoingTasks, result] = useLazyGetOngoingTaskQuery();
+  const [ongoingTasks, { isLoading, isFetching }] =
+    useLazyGetOngoingTaskQuery();
 
-  // Simulate API call for pagination
-  const fetchData = async (pageNum = 1, isRefresh = false) => {
-    if (loading || (!hasMore && pageNum > 1)) return;
-
-    setLoading(true);
-
-    // Simulate API delay
-    setTimeout(() => {
-      if (isRefresh) {
-        // Reset to initial data on refresh
-        setTaskData([1, 2, 3, 4, 5]);
-        setPage(1);
-        setHasMore(true);
-      } else if (pageNum > 1) {
-        // Load more data
-        const newData = Array.from(
-          { length: 5 },
-          (_, i) => taskData.length + i + 1
-        );
-        setTaskData((prev) => [...prev, ...newData]);
-
-        // Simulate no more data after page 3
-        if (pageNum >= 3) {
-          setHasMore(false);
-        }
-      }
-
-      setLoading(false);
-      setRefreshing(false);
-    }, 1000);
-  };
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchData(nextPage);
-    }
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchData(1, true);
-  };
-
-  useEffect(() => {
-    fetchData(1);
-
-    const loadOngoingTask = async () => {
+  // Fetch tasks function
+  const fetchTasks = useCallback(
+    async (pageNum = 1, isRefresh = false) => {
       try {
-        const res = await ongoingTasks({});
-        console.log(res, "this is ongoing task response ----------->");
+        const res = await ongoingTasks({
+          page: pageNum,
+          per_page: 10,
+          _timestamp: Date.now(),
+        });
+
+        const newData = res?.data?.data?.data || [];
+        const totalPages = res?.data?.data?.last_page || 1;
+
+        if (isRefresh) {
+          // Refresh: replace all data
+          setTaskData(newData);
+          setPage(1);
+        } else if (pageNum === 1) {
+          // Initial load or pull to refresh
+          setTaskData(newData);
+        } else {
+          // Load more: append data
+          setTaskData((prev) => [...prev, ...newData]);
+        }
+
+        // Check if there are more pages
+        setHasMore(pageNum < totalPages);
       } catch (error) {
-        console.log(error, "something wrong ------------->");
+        console.log(error, "Error fetching ongoing tasks");
       }
-    };
-
-    loadOngoingTask();
-  }, []);
-
-  // Render each task item
-  const renderTaskItem = ({ item, index }) => (
-    <TouchableOpacity
-      onPress={() => router.push("/taskPerformerSection/task/taskDetails")}
-      style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
-    >
-      <View style={tw`flex-row items-center justify-between py-4`}>
-        <View style={tw`flex-row items-center gap-2`}>
-          <Image style={tw`w-12 h-12 rounded-full`} source={ImgFastSplash} />
-          <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
-            Star Bucks
-          </Text>
-        </View>
-        <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}>
-          13 Aug, 2025
-        </Text>
-      </View>
-      <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
-        Instagram Likes
-      </Text>
-
-      <View style={tw`flex-row items-center gap-3 py-4`}>
-        <View style={tw`flex-row items-center gap-2`}>
-          <SvgXml xml={IconPoint} />
-          <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
-            500
-          </Text>
-        </View>
-        <SvgXml xml={IconInstagram} />
-      </View>
-    </TouchableOpacity>
+    },
+    [ongoingTasks]
   );
 
-  // Render loading footer
-  const renderFooter = () => {
-    if (!loading) return null;
+  // ============ initial render the data =====================
+  useEffect(() => {
+    fetchTasks(1);
+  }, [fetchTasks]);
+
+  // Handle pull to refresh
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTasks(1, true);
+    setRefreshing(false);
+  }, [fetchTasks]);
+
+  // Handle load more
+  const handleLoadMore = useCallback(async () => {
+    if (!isFetching && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      await fetchTasks(nextPage);
+    }
+  }, [isFetching, hasMore, page, fetchTasks]);
+
+  // Render each task item
+  const renderTaskItem = ({ item }: any) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/taskPerformerSection/task/taskDetails",
+            params: {
+              id: item?.task?.id,
+            },
+          })
+        }
+        style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
+      >
+        <View style={tw`flex-row items-center justify-between py-4`}>
+          <View style={tw`flex-row items-center gap-2`}>
+            <Image
+              style={tw`w-12 h-12 rounded-full`}
+              source={helpers.getImgFullUrl(item?.task?.creator?.avatar)}
+            />
+            <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
+              {item?.task?.creator?.name}
+            </Text>
+          </View>
+          <Text
+            style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
+          >
+            {helpers.timeAgo(item?.task?.created_at)}
+          </Text>
+        </View>
+        <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
+          {item?.task?.engagement?.engagement_name}
+        </Text>
+
+        <View style={tw`flex-row items-center gap-3 py-4`}>
+          <View style={tw`flex-row items-center gap-2`}>
+            <SvgXml xml={IconPoint} />
+            <Text
+              style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+            >
+              500
+            </Text>
+          </View>
+          <Image
+            style={tw`w-6 h-6 rounded-full`}
+            contentFit="cover"
+            source={helpers.getImgFullUrl(item?.task?.social?.icon_url)}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // -=============== Render footer ======================
+  const renderFooter = useCallback(() => {
+    if (!isFetching || page === 1) return null;
 
     return (
       <View style={tw`py-4 items-center`}>
         <ActivityIndicator size="small" color="#ffffff" />
       </View>
     );
-  };
+  }, [isFetching, page]);
 
   // Render empty component
-  const renderEmptyComponent = () => (
-    <View style={tw`py-8 items-center`}>
-      <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
-        No tasks available
-      </Text>
-    </View>
+  const renderEmptyComponent = useCallback(
+    () => (
+      <View style={tw`py-8 items-center`}>
+        <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
+          {isLoading ? "Loading..." : "No tasks available"}
+        </Text>
+      </View>
+    ),
+    [isLoading]
   );
+
+  // Render loading indicator for initial load
+  if (isLoading && page === 1) {
+    return (
+      <ViewProvider
+        containerStyle={tw`flex-1 bg-bgBaseColor justify-center items-center`}
+      >
+        <ActivityIndicator size="large" color="#ffffff" />
+      </ViewProvider>
+    );
+  }
 
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-8`}>
@@ -158,40 +186,26 @@ const Task = () => {
           />
         </View>
 
-        <View
-          style={tw`h-12 flex-row items-center px-4 rounded-xl bg-inputBgColor gap-3 mb-6`}
-        >
-          <SvgXml xml={IconSearch} />
-          <TextInput
-            placeholder="Search by name of task creator"
-            placeholderTextColor="#A4A4A4"
-            style={tw`flex-1 text-white500`}
-            onChangeText={(value) => setSearchValue(value)}
-            value={searchValue}
-          />
-        </View>
-
         <FlatList
           data={taskData}
           renderItem={renderTaskItem}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item, index) => `${item?.id || index}-${index}`}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={tw`pb-4`}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
           ListEmptyComponent={renderEmptyComponent}
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          // refreshControl={
-          //   <RefreshControl
-          //     refreshing={refreshing}
-          //     onRefresh={handleRefresh}
-          //     colors={["#ffffff"]}
-          //     tintColor="#ffffff"
-          //   />
-          // }
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
+          removeClippedSubviews={true}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
         />
       </View>
     </ViewProvider>

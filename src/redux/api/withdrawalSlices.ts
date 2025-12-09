@@ -16,12 +16,18 @@ const withdrawalSlices = api.injectEndpoints({
       providesTags: ["wallet"],
     }),
     tokenConvert: builder.mutation<any, any>({
-      query: (data) => ({
+      query: (token) => ({
         url: "/app/withdrawal/tokenconvert",
         method: "POST",
-        body: data,
+        body: token,
       }),
       invalidatesTags: ["wallet"],
+    }),
+    getAllPromoLinks: builder.query<any, any>({
+      query: () => ({
+        url: "/links",
+      }),
+      providesTags: ["wallet"],
     }),
   }),
 });
@@ -30,4 +36,5 @@ export const {
   useGetWalletInfoQuery,
   useGetDashboardHistoryQuery,
   useTokenConvertMutation,
+  useGetAllPromoLinksQuery,
 } = withdrawalSlices;

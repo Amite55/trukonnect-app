@@ -4,20 +4,62 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
+import {
+  useGetAllPromoLinksQuery,
+  useTokenConvertMutation,
+} from "@/src/redux/api/withdrawalSlices";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import React from "react";
-import { Modal, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Modal, ScrollView, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const localVideo = require("@/assets/video/videos.mp4");
 
 const YoutubeVideo = () => {
-  const [completeVideo, setCompleteVideo] = React.useState(true);
+  const { convertToken } = useLocalSearchParams();
+  const [completeVideo, setCompleteVideo] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
 
-  const player = useVideoPlayer(localVideo);
+  // =================== api end point =====================
+  const [tokenConvert, { isLoading: isConverting }] = useTokenConvertMutation();
+  const { data: promoData, isLoading: isPromoLoading } =
+    useGetAllPromoLinksQuery({});
+
+  console.log(promoData?.data[0]?.link, "this promo data details =========>");
+  // const player = useVideoPlayer(promoData?.data[0]?.link);
+
+  const player = useVideoPlayer(promoData?.data[0]?.link, (player) => {
+    player.loop = true;
+    player.play();
+  });
+
+  // ============= token convert handel =========
+  const handleConvert = async () => {
+    try {
+      const res = await tokenConvert({
+        token: convertToken,
+        _method: "PUT",
+      }).unwrap();
+      if (res.status) {
+        setShowModal(true);
+      }
+    } catch (error: any) {
+      console.log(error, "not converted try again.");
+      router.push({
+        pathname: "/Toaster",
+        params: { res: error?.message || "Not converted try again." },
+      });
+    }
+  };
+
+  // ============== puse 30 sec =================
+  React.useEffect(() => {
+    setTimeout(() => {
+      setCompleteVideo(true);
+    }, 3000);
+  }, []);
 
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4 pt-3 bg-bgBaseColor`}>
@@ -31,14 +73,18 @@ const YoutubeVideo = () => {
         />
         {/* --------------------- ads videos ---------------- */}
         <View style={tw`justify-center items-center w-full py-8`}>
-          <VideoView
-            style={tw`w-[80%] h-40 justify-center items-center`}
-            player={player}
-            allowsFullscreen
-            contentFit="contain"
-            //   source={localVideo}
-            //   resizeMode="cover"
-          />
+          {isPromoLoading ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <VideoView
+              style={tw`w-[80%] h-40 justify-center items-center`}
+              player={player}
+              allowsFullscreen
+              contentFit="contain"
+              //   source={localVideo}
+              //   resizeMode="cover"
+            />
+          )}
         </View>
 
         <Text style={tw`font-HalyardDisplayRegular text-base text-white500`}>
@@ -48,7 +94,8 @@ const YoutubeVideo = () => {
 
         {completeVideo ? (
           <PrimaryButton
-            onPress={() => setShowModal(true)}
+            loading={isConverting}
+            onPress={() => handleConvert()}
             buttonText="Continue to convert"
             buttonContainerStyle={tw`w-full h-12 bg-primaryBtn mt-10 mb-4`}
           />
