@@ -10,8 +10,8 @@ const withdrawalSlices = api.injectEndpoints({
       providesTags: ["wallet"],
     }),
     getDashboardHistory: builder.query<any, any>({
-      query: () => ({
-        url: "/app/withdrawal/dashboardhistory",
+      query: ({ page, per_page }) => ({
+        url: `/app/withdrawal/dashboardhistory/?page=${page}&per_page=${per_page}`,
       }),
       providesTags: ["wallet"],
     }),
@@ -35,6 +35,7 @@ const withdrawalSlices = api.injectEndpoints({
 export const {
   useGetWalletInfoQuery,
   useGetDashboardHistoryQuery,
+  useLazyGetDashboardHistoryQuery,
   useTokenConvertMutation,
   useGetAllPromoLinksQuery,
 } = withdrawalSlices;

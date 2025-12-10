@@ -5,6 +5,11 @@ export class helpers {
     return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
+  static fastName(text: string): string {
+    if (!text) return "";
+    return text.trim().split(" ")[0];
+  }
+
   static lowerCase(text: string): string {
     return text ? text.toLowerCase() : "";
   }

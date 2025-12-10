@@ -13,7 +13,10 @@ import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
-import { useLazyGetPerformTaskQuery } from "@/src/redux/api/performarSlices";
+import {
+  useLazyGetPerformTaskQuery,
+  useLazySingleTaskDetailsQuery,
+} from "@/src/redux/api/performarSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -41,49 +44,68 @@ const TaskHistory = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [taskHistoryData, setTaskHistoryData] = useState();
-  console.log(filteredData, "------------------------>");
-
+  const [taskDetails, setTaskDetails] = useState();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const detailsBottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  console.log(taskDetails, "this is task details =========>");
 
   // =================== api end point ==================
   const [tasksHistory, { isLoading, isFetching }] =
     useLazyGetPerformTaskQuery();
 
-  const fetchData = useCallback(async (pageNum = 1, isRefresh = false) => {
-    try {
-      const res = await tasksHistory({
-        page: pageNum,
-        per_page: 10,
-        // ...(searchValue && { search: searchValue }),
-        // status: filteredData,
-        _timestamp: Date.now(),
-      }).unwrap();
-      console.log(res?.data, "this is res------------>");
-      const newData = res?.data?.data || [];
-      const totalPages = res?.data?.last_page || 1;
+  const [taskHistoryDataDetails, { isLoading: isDetailsLoading }] =
+    useLazySingleTaskDetailsQuery();
 
-      if (isRefresh) {
-        // Refresh: replace all data
-        setTaskHistoryData(newData);
-        setPage(1);
-      } else if (pageNum === 1) {
-        // Initial load or pull to refresh
-        setTaskHistoryData(newData);
-      } else {
-        // Load more: append data
-        setTaskHistoryData((prev) => [...prev, ...newData]);
+  // ================== details task data =================
+  const hanleTaskDetails = async (id: any) => {
+    try {
+      const response = await taskHistoryDataDetails({ id }).unwrap();
+      if (response) {
+        setTaskDetails(response);
       }
-      setHasMore(pageNum < totalPages);
     } catch (error) {
-      console.log(error, "error in task history api call");
+      console.log(error, "details not showing --------------->");
     }
-  }, []);
+  };
+
+  const fetchData = useCallback(
+    async (pageNum = 1, isRefresh = false) => {
+      try {
+        const res = await tasksHistory({
+          page: pageNum,
+          per_page: 10,
+          search: searchValue,
+          status: filteredData,
+          _timestamp: Date.now(),
+        }).unwrap();
+        // console.log(res?.data, "this is res------------>");
+        const newData = res?.data?.data || [];
+        const totalPages = res?.data?.last_page || 1;
+
+        if (isRefresh) {
+          // Refresh: replace all data
+          setTaskHistoryData(newData);
+          setPage(1);
+        } else if (pageNum === 1) {
+          // Initial load or pull to refresh
+          setTaskHistoryData(newData);
+        } else {
+          // Load more: append data
+          setTaskHistoryData((prev) => [...prev, ...newData]);
+        }
+        setHasMore(pageNum < totalPages);
+      } catch (error) {
+        console.log(error, "error in task history api call");
+      }
+    },
+    [filteredData, searchValue, tasksHistory]
+  );
 
   // ============= initial render =====================
   useEffect(() => {
     fetchData(1);
-  }, [fetchData]);
+  }, [fetchData, searchValue, filteredData]);
 
   // Handle pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -155,7 +177,10 @@ const TaskHistory = () => {
   const renderTaskItem = ({ item }: any) => {
     return (
       <TouchableOpacity
-        onPress={() => handleDetailsModalOpen()}
+        onPress={() => {
+          hanleTaskDetails(item?.id);
+          handleDetailsModalOpen();
+        }}
         style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
       >
         <View style={tw`flex-row items-center justify-between py-4`}>
@@ -200,7 +225,8 @@ const TaskHistory = () => {
               "w-24 h-8 justify-center items-center rounded-full bg-slate-600",
               item?.status === "Pending" && "bg-pendingBG",
               item?.status === "Completed" && "bg-earnBG",
-              item?.status === "Rejected" && "bg-rejectBG"
+              item?.status === "Rejected" && "bg-rejectBG",
+              item?.status === "Admin_review" && "bg-pendingBG"
             )}
           >
             <Text
@@ -208,10 +234,11 @@ const TaskHistory = () => {
                 "font-HalyardDisplayMedium text-sm",
                 item?.status === "Pending" && "text-pendingText",
                 item?.status === "Completed" && "text-earnText",
-                item?.status === "Rejected" && "text-rejectText"
+                item?.status === "Rejected" && "text-rejectText",
+                item?.status === "Admin_review" && "text-pendingText"
               )}
             >
-              {item?.status}
+              {item?.status === "Admin_review" ? "Admin Review" : item?.status}
             </Text>
           </View>
         </View>

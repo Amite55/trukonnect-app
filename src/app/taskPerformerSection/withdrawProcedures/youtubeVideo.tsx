@@ -11,29 +11,141 @@ import {
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ActivityIndicator, Modal, ScrollView, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
-const localVideo = require("@/assets/video/videos.mp4");
-
 const YoutubeVideo = () => {
   const { convertToken } = useLocalSearchParams();
-  const [completeVideo, setCompleteVideo] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
+  const [currentTime, setCurrentTime] = React.useState(0);
+  const [hasWatched30Seconds, setHasWatched30Seconds] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const intervalRef = useRef(null);
+  const playerRef = useRef(null);
 
   // =================== api end point =====================
   const [tokenConvert, { isLoading: isConverting }] = useTokenConvertMutation();
   const { data: promoData, isLoading: isPromoLoading } =
     useGetAllPromoLinksQuery({});
 
-  console.log(promoData?.data[0]?.link, "this promo data details =========>");
-  // const player = useVideoPlayer(promoData?.data[0]?.link);
+  // ===========`========== video player handel ===========
+  const player = useVideoPlayer(
+    process.env.EXPO_PUBLIC_VIDEO_URL + "/" + promoData?.data[0]?.link,
+    (player) => {
+      player.loop = false;
+      player.play();
+      // ============== set custom loading to video player =================
+      player.addListener("playingChange", (isPlaying) => {
+        setIsPlaying(isPlaying);
+        if (isPlaying) {
+          setIsLoading(false);
+          // Start tracking time when video starts playing
+          startTimeTracking();
+        } else {
+          // Pause tracking when video is paused
+          stopTimeTracking();
+        }
+      });
+      // ====================== after the loading and set play video =================
+      player.addListener("statusChange", (status) => {
+        if (status === "readyToPlay") {
+          setIsLoading(false);
+          player.play();
+        }
+      });
 
-  const player = useVideoPlayer(promoData?.data[0]?.link, (player) => {
-    player.loop = true;
-    player.play();
-  });
+      // Handle video end ============>
+      player.addListener("playToEnd", () => {
+        stopTimeTracking();
+        // If video ends, activate button
+        setHasWatched30Seconds(true);
+      });
+
+      player.addListener("progressUpdate", (progress) => {
+        console.log(
+          progress,
+          progress,
+          " player progress update state--------------->"
+        );
+        const timeInSeconds = progress.positionMillis / 1000;
+        setCurrentTime(timeInSeconds);
+        // Check if 30 seconds have been watched
+        if (timeInSeconds >= 30 && !hasWatched30Seconds) {
+          setHasWatched30Seconds(true);
+          console.log("30 seconds watched!");
+          // You can trigger your button activation here
+        }
+      });
+    }
+  );
+
+  // Time tracking function
+  const startTimeTracking = () => {
+    console.log("Starting time tracking");
+    stopTimeTracking(); // Clear any existing interval
+
+    intervalRef.current = setInterval(() => {
+      setCurrentTime((prev) => {
+        const newTime = prev + 1;
+        console.log(`Time: ${newTime}s`);
+
+        // Check if 30 seconds reached
+        if (newTime >= 30 && !hasWatched30Seconds) {
+          console.log("✅ 30 seconds watched!");
+          setHasWatched30Seconds(true);
+          // Optional: stop tracking after 30s
+          stopTimeTracking();
+        }
+
+        return newTime;
+      });
+    }, 1000); // Update every second
+  };
+
+  const stopTimeTracking = () => {
+    if (intervalRef.current) {
+      console.log("Stopping time tracking");
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    if (player && promoData) {
+      setIsLoading(true);
+      // Reset tracking when video changes
+      setHasWatched30Seconds(false);
+      setCurrentTime(0);
+      stopTimeTracking();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      stopTimeTracking();
+    };
+  }, [promoData]);
+
+  // Reset when video URL changes
+  useEffect(() => {
+    if (promoData?.data[0]?.link) {
+      console.log("Video URL changed, resetting timer");
+      setCurrentTime(0);
+      setHasWatched30Seconds(false);
+      setIsLoading(true);
+      stopTimeTracking();
+    }
+  }, [promoData?.data[0]?.link]);
+
+  useEffect(() => {
+    if (player && promoData) {
+      setIsLoading(true);
+      // Reset tracking when video changes
+      setHasWatched30Seconds(false);
+      setCurrentTime(0);
+    }
+  }, [promoData]);
 
   // ============= token convert handel =========
   const handleConvert = async () => {
@@ -54,13 +166,6 @@ const YoutubeVideo = () => {
     }
   };
 
-  // ============== puse 30 sec =================
-  React.useEffect(() => {
-    setTimeout(() => {
-      setCompleteVideo(true);
-    }, 3000);
-  }, []);
-
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4 pt-3 bg-bgBaseColor`}>
       <ScrollView
@@ -73,7 +178,7 @@ const YoutubeVideo = () => {
         />
         {/* --------------------- ads videos ---------------- */}
         <View style={tw`justify-center items-center w-full py-8`}>
-          {isPromoLoading ? (
+          {isPromoLoading || isLoading ? (
             <ActivityIndicator size="small" color="#ffffff" />
           ) : (
             <VideoView
@@ -81,9 +186,17 @@ const YoutubeVideo = () => {
               player={player}
               allowsFullscreen
               contentFit="contain"
-              //   source={localVideo}
-              //   resizeMode="cover"
+              ref={playerRef}
             />
+          )}
+
+          {!isLoading && (
+            <View style={tw`mt-2 w-[80%]`}>
+              <Text style={tw`text-white text-xs text-center`}>
+                Watched: {Math.min(currentTime, 30)}s / 30s
+                {hasWatched30Seconds ? " ✅ Ready!" : ""}
+              </Text>
+            </View>
           )}
         </View>
 
@@ -92,7 +205,7 @@ const YoutubeVideo = () => {
           convert button will be enable after watching at least 30 seconds.
         </Text>
 
-        {completeVideo ? (
+        {hasWatched30Seconds ? (
           <PrimaryButton
             loading={isConverting}
             onPress={() => handleConvert()}
@@ -106,6 +219,7 @@ const YoutubeVideo = () => {
             //   }
             disabled
             buttonText="Continue to convert"
+            buttonTextStyle={tw`text-gray-500`}
             buttonContainerStyle={tw`w-full h-12 bg-inputBgColor mt-10 mb-4`}
           />
         )}
