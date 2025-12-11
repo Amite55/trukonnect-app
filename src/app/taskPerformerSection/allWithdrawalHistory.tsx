@@ -113,7 +113,6 @@ const AllWithdrawalHistory = () => {
         return <BackTitleButton title="Withdrawal History" />;
       }}
       renderItem={({ item }: any) => {
-        console.log(item, "this is a;slkdjfl;sakdjf");
         return (
           <WithdrawalHistoryCard
             amount={item.amount}

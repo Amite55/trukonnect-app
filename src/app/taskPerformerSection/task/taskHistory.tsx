@@ -2,12 +2,10 @@ import {
   IconCalendar,
   IconCross,
   IconFilter,
-  IconInstagram,
   IconPoint,
   IconSearch,
   IconWarring,
 } from "@/assets/icons";
-import { ImgCompleteTaskSOS, ImgFastSplash } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
@@ -48,8 +46,6 @@ const TaskHistory = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const detailsBottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  console.log(taskDetails, "this is task details =========>");
-
   // =================== api end point ==================
   const [tasksHistory, { isLoading, isFetching }] =
     useLazyGetPerformTaskQuery();
@@ -58,11 +54,17 @@ const TaskHistory = () => {
     useLazySingleTaskDetailsQuery();
 
   // ================== details task data =================
-  const hanleTaskDetails = async (id: any) => {
+  const handleTaskDetails = async (id: any) => {
+    console.log(id);
     try {
-      const response = await taskHistoryDataDetails({ id }).unwrap();
+      const response = await taskHistoryDataDetails({
+        id,
+        check: "task_performer",
+      }).unwrap();
+
       if (response) {
         setTaskDetails(response);
+        handleDetailsModalOpen();
       }
     } catch (error) {
       console.log(error, "details not showing --------------->");
@@ -178,8 +180,7 @@ const TaskHistory = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          hanleTaskDetails(item?.id);
-          handleDetailsModalOpen();
+          handleTaskDetails(item?.id);
         }}
         style={tw`border border-borderColor rounded-xl px-4 shadow-lg shadow-borderColor mb-3`}
       >
@@ -373,12 +374,14 @@ const TaskHistory = () => {
                 <View style={tw`flex-row items-center gap-2`}>
                   <Image
                     style={tw`w-12 h-12 rounded-full`}
-                    source={ImgFastSplash}
+                    source={helpers.getImgFullUrl(
+                      taskDetails?.data?.task_performer?.task?.creator?.avatar
+                    )}
                   />
                   <Text
                     style={tw`font-HalyardDisplayMedium text-xl text-white500`}
                   >
-                    Star Bucks
+                    {taskDetails?.data?.task_performer?.task?.creator?.name}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -392,18 +395,17 @@ const TaskHistory = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                Instagram Likes
+                {
+                  taskDetails?.data?.task_performer?.task?.engagement
+                    ?.engagement_name
+                }
               </Text>
 
               {/* Description */}
               <Text
                 style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
               >
-                Like the latest Star Bucks ad post on Instagram. Earn 2 tokens
-                instantly for showing your support!
-                {"\n"}- Tap the link
-                {"\n"}- Check the profile picture
-                {"\n"}- React on the post
+                {taskDetails?.data?.task_performer?.task?.description}
               </Text>
 
               {/* Tokens */}
@@ -418,7 +420,7 @@ const TaskHistory = () => {
                   <Text
                     style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                   >
-                    200
+                    {taskDetails?.data?.task_performer?.task?.total_token}
                   </Text>
                 </View>
               </View>
@@ -431,11 +433,18 @@ const TaskHistory = () => {
                   Task from
                 </Text>
                 <View style={tw`flex-row items-center gap-2`}>
-                  <SvgXml xml={IconInstagram} />
+                  {/* <SvgXml xml={IconInstagram} /> */}
+                  <Image
+                    style={tw`w-6 h-6 rounded-full`}
+                    source={helpers.getImgFullUrl(
+                      taskDetails?.data?.task_performer?.task?.social?.icon_url
+                    )}
+                    contentFit="cover"
+                  />
                   <Text
                     style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                   >
-                    Instagram
+                    {taskDetails?.data?.task_performer?.task?.social?.name}
                   </Text>
                 </View>
               </View>
@@ -452,7 +461,9 @@ const TaskHistory = () => {
                   <Text
                     style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                   >
-                    13 Aug, 2025
+                    {helpers.formatDate(
+                      taskDetails?.data?.task_performer?.task?.created_at
+                    )}
                   </Text>
                 </View>
               </View>
@@ -467,14 +478,18 @@ const TaskHistory = () => {
               </View>
 
               <View style={tw`py-4 flex-row gap-4 px-2`}>
-                <Image
-                  style={tw`w-20 h-28 rounded-lg`}
-                  source={ImgCompleteTaskSOS}
-                />
-                <Image
-                  style={tw`w-20 h-28 rounded-lg`}
-                  source={ImgCompleteTaskSOS}
-                />
+                {taskDetails?.data?.task_performer?.task_attached?.map(
+                  (item: any) => {
+                    return (
+                      <Image
+                        key={item?.id}
+                        style={tw`w-20 h-28 rounded-lg`}
+                        source={helpers.getImgFullUrl(item?.file_url)}
+                        contentFit="cover"
+                      />
+                    );
+                  }
+                )}
               </View>
 
               <View style={tw`flex-row items-center gap-2`}>

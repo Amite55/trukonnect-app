@@ -39,7 +39,7 @@ const TaskDetails = () => {
     data: taskDetailsData,
     isLoading: isTaskDetailsLoading,
     isError,
-  } = useSingleTaskDetailsQuery(id);
+  } = useSingleTaskDetailsQuery({ id, check: "task" });
   const [saveTask, { isLoading: isSaveTaskLoading }] = useSaveTaskesMutation();
   const [submitTask, { isLoading: isSubmitTaskLoading }] =
     useTaskesSubmittedMutation();
@@ -61,7 +61,7 @@ const TaskDetails = () => {
   const handleSubmitTask = async () => {
     try {
       const formdata = new FormData();
-      formdata.append("task_id", taskDetailsData?.data?.id);
+      formdata.append("task_id", taskDetailsData?.data?.task?.id);
       visibleImage.forEach((uri, index) => {
         formdata.append("task_attached[]", {
           uri: uri,
@@ -93,7 +93,7 @@ const TaskDetails = () => {
     // const newValue = !isChecked;
     try {
       const res = await saveTask({
-        task_id: taskDetailsData?.data?.id,
+        task_id: taskDetailsData?.data?.task?.id,
       }).unwrap();
       if (res) {
         // setIsChecked(taskDetailsData?.data?.is_saved_by_user);
@@ -113,7 +113,7 @@ const TaskDetails = () => {
 
   // ================ fast render this api ======================
   useEffect(() => {
-    setIsChecked(taskDetailsData?.data?.is_saved_by_user);
+    setIsChecked(taskDetailsData?.data?.task?.is_saved_by_user);
   }, [taskDetailsData]);
 
   // ================== loading state -=======================
@@ -159,29 +159,29 @@ const TaskDetails = () => {
               contentFit="cover"
               style={tw`w-12 h-12 rounded-full`}
               source={helpers.getImgFullUrl(
-                taskDetailsData?.data?.creator?.avatar
+                taskDetailsData?.data?.task?.creator?.avatar
               )}
             />
             <View>
               <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>
-                {taskDetailsData?.data?.creator?.name}
+                {taskDetailsData?.data?.task?.creator?.name}
               </Text>
               <Text
                 style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
               >
-                {helpers.formatDate(taskDetailsData?.data?.created_at)}
+                {helpers.formatDate(taskDetailsData?.data?.task?.created_at)}
               </Text>
             </View>
           </View>
 
           {/* Title */}
           <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>
-            {taskDetailsData?.data?.engagement?.engagement_name}
+            {taskDetailsData?.data?.task?.engagement?.engagement_name}
           </Text>
 
           {/* Description */}
           <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-            {taskDetailsData?.data?.description}
+            {taskDetailsData?.data?.task?.description}
           </Text>
 
           {/* Tokens */}
@@ -196,7 +196,7 @@ const TaskDetails = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                {taskDetailsData?.data?.per_perform}
+                {taskDetailsData?.data?.task?.per_perform}
               </Text>
             </View>
           </View>
@@ -213,13 +213,13 @@ const TaskDetails = () => {
                 contentFit="cover"
                 style={tw`w-6 h-6 rounded-full `}
                 source={helpers.getImgFullUrl(
-                  taskDetailsData?.data?.social?.icon_url
+                  taskDetailsData?.data?.task?.social?.icon_url
                 )}
               />
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                {taskDetailsData?.data?.social?.name}
+                {taskDetailsData?.data?.task?.social?.name}
               </Text>
             </View>
           </View>

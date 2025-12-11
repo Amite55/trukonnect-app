@@ -38,6 +38,21 @@ const profileSlices = api.injectEndpoints({
       }),
       invalidatesTags: ["profile"],
     }),
+    updateProfileImage: builder.mutation<any, any>({
+      query: (formdata) => ({
+        url: "/app/edit-image-profile",
+        method: "POST",
+        body: formdata,
+      }),
+      invalidatesTags: ["profile"],
+    }),
+    deleteProfile: builder.mutation<any, any>({
+      query: () => ({
+        url: "/app/delete-profile",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["profile"],
+    }),
   }),
 });
 
@@ -47,4 +62,6 @@ export const {
   useSwitchRoleMutation,
   useGetAllSocialQuery,
   useSocialVerificationMutation,
+  useUpdateProfileImageMutation,
+  useDeleteProfileMutation,
 } = profileSlices;

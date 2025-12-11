@@ -1,9 +1,14 @@
 import { IconCross, IconEditCamera, IconLogout } from "@/assets/icons";
-import { ImgFastSplash } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useProfile } from "@/src/hooks/useProfile";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
+import {
+  useEditProfileMutation,
+  useUpdateProfileImageMutation,
+} from "@/src/redux/api/profileSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -11,8 +16,10 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   ScrollView,
   Text,
@@ -25,6 +32,14 @@ import { SvgXml } from "react-native-svg";
 const EditProfile = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const { data: profileData } = useProfile();
+  const [nameValue, setNameValue] = useState(profileData?.data?.user?.name);
+
+  // ''''''''''''''''''''''' api end point ''''''''''''''''''''
+  const [editProfile, { isLoading: isEditProfileLoading }] =
+    useEditProfileMutation();
+  const [updateProfileImage, { isLoading: isUpdateProfileImageLoading }] =
+    useUpdateProfileImageMutation();
 
   const handleEditModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -32,6 +47,28 @@ const EditProfile = () => {
   const handleEditModalClose = useCallback(() => {
     editBottomSheetModalRef.current?.dismiss();
   }, []);
+
+  // -------------------- custom image picker ----------------------
+
+  // ==================== edit profile handler ==================== //
+  const handleEditProfile = async () => {
+    try {
+      const res = await editProfile({
+        name: nameValue,
+        _method: "PUT",
+      }).unwrap();
+      if (res) {
+        handleEditModalClose();
+      }
+    } catch (error: any) {
+      console.log(error, "User profile not change ========>");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "User profile not change" },
+      });
+    }
+  };
+
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 `}>
       <ScrollView
@@ -44,13 +81,20 @@ const EditProfile = () => {
           <BackTitleButton title="Back" />
           <View style={tw`items-center`}>
             <View style={tw`relative`}>
-              <Image
-                source={ImgFastSplash}
-                style={tw`w-36 h-36   rounded-full border-2 border-white500`}
-                contentFit="contain"
-              />
+              {isUpdateProfileImageLoading ? (
+                <ActivityIndicator color="white" size={"large"} />
+              ) : (
+                <Image
+                  source={helpers.getImgFullUrl(
+                    profileData?.data?.user?.avatar
+                  )}
+                  style={tw`w-32 h-32   rounded-full border-2 border-white500`}
+                  contentFit="cover"
+                />
+              )}
               <TouchableOpacity
-                //   onPress={() => router.push("/editProfile")}
+                onPress={pickImage}
+                activeOpacity={0.7}
                 style={tw`absolute p-2 rounded-full bg-primaryBtn bottom-2 right-2`}
               >
                 <SvgXml xml={IconEditCamera} />
@@ -76,7 +120,7 @@ const EditProfile = () => {
               <Text
                 style={tw`font-HalyardDisplayRegular text-base text-white500`}
               >
-                Mr. Daniel
+                {profileData?.data?.user?.name}
               </Text>
             </View>
 
@@ -89,7 +133,7 @@ const EditProfile = () => {
               <Text
                 style={tw`font-HalyardDisplayRegular text-base text-white500`}
               >
-                daniel234@gmail.com
+                {profileData?.data?.user?.email}
               </Text>
             </View>
 
@@ -102,7 +146,7 @@ const EditProfile = () => {
               <Text
                 style={tw`font-HalyardDisplayRegular text-base text-white500`}
               >
-                +334 254845665
+                {profileData?.data?.user?.phone}
               </Text>
             </View>
           </View>
@@ -165,10 +209,12 @@ const EditProfile = () => {
                   style={tw`border border-borderColor  bg-inputBgColor rounded-xl  h-12`}
                 >
                   <TextInput
-                    onChangeText={() => {}}
+                    defaultValue={nameValue}
                     placeholder="Enter your full name"
                     placeholderTextColor="#A4A4A4"
                     style={tw` text-white500 flex-1 px-4`}
+                    value={nameValue}
+                    onChangeText={(value) => setNameValue(value)}
                   />
                 </View>
               </View>
@@ -182,7 +228,10 @@ const EditProfile = () => {
                 />
 
                 <PrimaryButton
-                  onPress={() => handleEditModalClose()}
+                  onPress={() => {
+                    handleEditProfile();
+                  }}
+                  loading={isEditProfileLoading}
                   buttonContainerStyle={tw`mb-1`}
                   buttonText="Save Changes"
                 />
@@ -193,8 +242,6 @@ const EditProfile = () => {
       </BottomSheetModalProvider>
 
       {/* ================================ delete account modal ================================ */}
-      {/* ========================== success modal ================ */}
-
       <Modal
         animationType="slide"
         transparent={true}
