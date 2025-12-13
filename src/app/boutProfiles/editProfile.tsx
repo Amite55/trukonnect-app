@@ -16,6 +16,7 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
 import {
@@ -49,6 +50,56 @@ const EditProfile = () => {
   }, []);
 
   // -------------------- custom image picker ----------------------
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+        selectionLimit: 1,
+      });
+
+      if (!result.canceled && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        let filename = selectedImage.fileName;
+        if (!filename) {
+          const uriParts = selectedImage.uri.split("/");
+          filename = uriParts[uriParts.length - 1];
+        }
+        const ext = filename.split(".").pop()?.toLowerCase();
+        let mimeType = "image/jpeg";
+        if (ext === "jpg" || ext === "jpeg") {
+          mimeType = "image/jpeg";
+        } else if (ext === "png") {
+          mimeType = "image/png";
+        } else if (ext === "gif") {
+          mimeType = "image/gif";
+        }
+        const form = new FormData();
+        form.append("avatar", {
+          uri: selectedImage.uri,
+          name: filename,
+          type: mimeType,
+        } as any);
+        const response = await updateProfileImage(form);
+        if (response) {
+          router.push({
+            pathname: `/Toaster`,
+            params: { res: "Image updated successfully" },
+          });
+        }
+      } else {
+        console.log("Image selection cancelled");
+      }
+    } catch (error: any) {
+      console.log(error, "Image not updated===>");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Image not updated" },
+      });
+    }
+  };
 
   // ==================== edit profile handler ==================== //
   const handleEditProfile = async () => {
