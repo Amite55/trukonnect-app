@@ -2,11 +2,66 @@ import { ImgFastSplash, ImgFourthSplash, ImgThirdSplash } from "@/assets/image";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
+import { useLazyGetLeaderBoardQuery } from "@/src/redux/api/leaderBoardSlices";
 import { Image } from "expo-image";
-import React from "react";
-import { FlatList, Text, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 
 const Leaderboard = () => {
+  const [page, setPage] = React.useState(1);
+  const [leadersData, setLeadersData] = React.useState([]);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  // ==================== const ===============
+  const [getLeaderBoard, { data, isLoading, isFetching }] =
+    useLazyGetLeaderBoardQuery();
+
+  const loadLeaderboard = useCallback(
+    async (pageNum = 1, isRefresh = false) => {
+      try {
+        const res = await getLeaderBoard({
+          page: pageNum,
+          per_page: 10,
+          _timestamp: Date.now(),
+        }).unwrap();
+        const newData = res?.data?.leaderboard?.data || [];
+        const totalPages = res?.data?.leaderboard?.last_page || 1;
+        if (isRefresh) {
+          setLeadersData(newData);
+          setPage(1);
+        } else if (pageNum === 1) {
+          setLeadersData(newData);
+          // setPage(1);
+        } else {
+          setLeadersData((prevData) => [...prevData, ...newData]);
+        }
+        setHasMore(pageNum < totalPages);
+      } catch (error: any) {
+        console.log(error, "Error fetching ongoing tasks");
+      }
+    },
+    [getLeaderBoard]
+  );
+
+  // ===================== initial render ================
+  useEffect(() => {
+    loadLeaderboard(1);
+  }, [getLeaderBoard]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await loadLeaderboard(1, true);
+    setIsRefreshing(false);
+  }, [loadLeaderboard]);
+
+  const handleLoadMore = useCallback(async () => {
+    if (!isFetching && hasMore) {
+      setPage((prevPage) => prevPage + 1);
+      await loadLeaderboard(page + 1);
+    }
+  }, [isFetching, hasMore, page, loadLeaderboard]);
+
   const RenderHeader = () => {
     return (
       <View>
@@ -82,7 +137,13 @@ const Leaderboard = () => {
       <FlatList
         data={leaderboardData}
         keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        }
         contentContainerStyle={tw`gap-4 py-4`}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        refreshing={isRefreshing}
         ListHeaderComponent={RenderHeader}
         renderItem={({ item, index }) => (
           <View

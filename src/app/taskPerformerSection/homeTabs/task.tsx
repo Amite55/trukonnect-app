@@ -51,8 +51,6 @@ const Task = () => {
           // Load more: append data
           setTaskData((prev) => [...prev, ...newData]);
         }
-
-        // Check if there are more pages
         setHasMore(pageNum < totalPages);
       } catch (error) {
         console.log(error, "Error fetching ongoing tasks");

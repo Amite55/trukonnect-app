@@ -7,6 +7,7 @@ import {
 } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useProfile } from "@/src/hooks/useProfile";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import tw from "@/src/lib/tailwind";
 import * as Clipboard from "expo-clipboard";
@@ -18,9 +19,12 @@ import { SvgXml } from "react-native-svg";
 
 const RefferalsScreen = () => {
   const [activeTab, setActiveTab] = useState("user");
+  const { data: profileData, isLoading } = useProfile();
+
+  console.log(profileData, "hare is profile data ==========>");
 
   const copyToClipboard = async () => {
-    await Clipboard.setStringAsync("https://trukonnect.com/ref/TRU-DD7S");
+    await Clipboard.setStringAsync(profileData?.data?.user?.referral_code);
     router.push({
       pathname: "/Toaster",
       params: {
@@ -124,7 +128,7 @@ const RefferalsScreen = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                TRU - DD7S
+                {profileData?.data?.user?.referral_code}
               </Text>
             </View>
 
@@ -135,28 +139,28 @@ const RefferalsScreen = () => {
                 buttonContainerStyle={tw`w-11 h-8  rounded-lg mb-0`}
                 onPress={copyToClipboard}
               />
-              <PrimaryButton
+              {/* <PrimaryButton
                 buttonText="Share"
                 buttonTextStyle={tw`text-sm font-HalyardDisplayMedium`}
                 buttonContainerStyle={tw`w-11 h-8 rounded-lg mb-0`}
-              />
+              /> */}
             </View>
           </View>
 
-          <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
+          {/* <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
             https://trukonnect.com/ref/TRU-DD7S
-          </Text>
+          </Text> */}
         </View>
 
         {/* ============== total earning ================ */}
         <View
-          style={tw`flex-row justify-between items-center mt-6 p-4 bg-transparentBG rounded-2xl`}
+          style={tw`flex-row justify-around items-center mt-6 p-4 bg-transparentBG rounded-2xl`}
         >
           <View style={tw`gap-1 items-center`}>
             <Text
               style={tw`font-HalyardDisplaySemiBold text-xl text-primaryBtn`}
             >
-              8
+              {profileData?.data?.user?.total_ref}
             </Text>
             <Text
               style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
@@ -164,25 +168,14 @@ const RefferalsScreen = () => {
               Referrals
             </Text>
           </View>
-          <View style={tw`gap-1 items-center`}>
-            <Text
-              style={tw`font-HalyardDisplaySemiBold text-xl text-primaryBtn`}
-            >
-              3
-            </Text>
-            <Text
-              style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
-            >
-              Pending
-            </Text>
-          </View>
+
           <View style={tw`gap-1 items-center`}>
             <View style={tw`flex-row items-center gap-1`}>
               <SvgXml xml={IconCurrencyPrimaryColor} />
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-xl text-primaryBtn`}
               >
-                3,000
+                {profileData?.data?.user?.ref_income}
               </Text>
             </View>
             <Text

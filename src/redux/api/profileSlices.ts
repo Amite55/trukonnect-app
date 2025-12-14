@@ -31,11 +31,19 @@ const profileSlices = api.injectEndpoints({
       providesTags: ["profile"],
     }),
     socialVerification: builder.mutation<any, any>({
-      query: ({ data, id }) => ({
-        url: `/app/socialverification/${id}`,
-        method: "POST",
-        body: data,
-      }),
+      query: ({ id, form }) => {
+        console.log(
+          form,
+          "this is form data ",
+          id,
+          "this is id with api end point -------------->"
+        );
+        return {
+          url: `/app/socialverification/${id}`,
+          method: "PUT",
+          body: form,
+        };
+      },
       invalidatesTags: ["profile"],
     }),
     updateProfileImage: builder.mutation<any, any>({

@@ -3,6 +3,7 @@ import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
+import WalletHistorySkeleton from "@/src/lib/Skeleton/WalletHistorySkeleton";
 import tw from "@/src/lib/tailwind";
 import {
   useDeletedSocialAccountMutation,
@@ -16,6 +17,7 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef } from "react";
 import {
@@ -35,6 +37,9 @@ const SocialLinks = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [socialLinkDetails, setSocialLinkDetails] = React.useState<any>("");
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+  const [profile_name, setProfile_name] = React.useState("");
+  const [note, setNote] = React.useState("");
+  const [imageResult, setImageResult] = React.useState<any>("");
 
   const handleDetailsModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -90,8 +95,57 @@ const SocialLinks = () => {
   };
 
   // =========== handle add social verify request =================
-  const handleRequestSocialVerify = async () => {
+  const handleRequestSocialVerify = async (id: any) => {
     try {
+      if (!imageResult || !profile_name) {
+        router.push({
+          pathname: `/Toaster`,
+          params: {
+            res: "Please Fill up usename link and image to submit request",
+          },
+        });
+        return;
+      } else {
+        let filename = imageResult.fileName;
+        if (!filename) {
+          const uriParts = imageResult.uri.split("/");
+          filename = uriParts[uriParts.length - 1];
+        }
+        // setImagePreview(selectedImage.uri);
+        const ext = filename.split(".").pop()?.toLowerCase();
+        let mimeType = "image/jpeg";
+        if (ext === "jpg" || ext === "jpeg") {
+          mimeType = "image/jpeg";
+        } else if (ext === "png") {
+          mimeType = "image/png";
+        } else if (ext === "gif") {
+          mimeType = "image/gif";
+        }
+        const form = new FormData();
+        form.append("profile_image", {
+          uri: imageResult.uri,
+          name: filename,
+          type: mimeType,
+        } as any);
+        form.append("profile_name", profile_name);
+        form.append("note", note);
+        form.append("_method", "PUT");
+        const res = await verifySocialAccount({
+          id: id,
+          form: form,
+        }).unwrap();
+        console.log(res, "this is verify request submitted ");
+        if (res) {
+          router.push({
+            pathname: `/Toaster`,
+            params: { res: res?.message || "Your verify request submitted" },
+          });
+          setTimeout(() => {
+            handleDetailsModalClose();
+            setImageResult("");
+          }, 1000);
+        }
+      }
     } catch (error: any) {
       console.log(error, "Your verify request no submitted");
       router.push({
@@ -101,6 +155,31 @@ const SocialLinks = () => {
             error?.message ||
             "Your verify request no submitted please try again ",
         },
+      });
+    }
+  };
+  // ============================ image picker ==========================
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        // aspect: [],
+        quality: 1,
+        selectionLimit: 1,
+      });
+      if (!result.canceled && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        setImageResult(selectedImage);
+      } else {
+        setImageResult("");
+        console.log("Image selection cancelled");
+      }
+    } catch (error: any) {
+      console.log(error, "Image not updated===>");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Image not updated" },
       });
     }
   };
@@ -132,12 +211,9 @@ const SocialLinks = () => {
             showsVerticalScrollIndicator={false}
           >
             <BackTitleButton title="Back" />
-
             {/* ====================== notice ------------------ */}
-
             <View style={tw`flex-row justify-start gap-2 pb-6`}>
               <SvgXml xml={IconWarring} />
-
               <Text
                 numberOfLines={7}
                 style={tw`flex-1 font-HalyardDisplaySemiBold text-base text-red-600`}
@@ -155,45 +231,49 @@ const SocialLinks = () => {
               </Text>
             </View>
             <View style={tw`gap-2`}>
-              {getAllSocialData?.data.map((item: any) => {
-                return (
-                  <TouchableOpacity
-                    // disabled={
-                    //   item?.status === "verified" || item?.status === "pending"
-                    // }
-                    onPress={() => {
-                      handleShowDetails(item?.id);
-                    }}
-                    key={item.id}
-                    style={tw`flex-row items-center justify-between p-4 `}
-                  >
-                    <View style={tw`flex-row items-center gap-4`}>
-                      {/* <SvgXml width={40} height={40} xml={item.icon} /> */}
-                      <Image
-                        style={tw`w-6 h-6 rounded-full`}
-                        contentFit="cover"
-                        source={helpers.getImgFullUrl(item?.social?.icon_url)}
-                      />
-                      <Text
-                        style={tw`font-HalyardDisplayMedium text-xl text-white500`}
-                      >
-                        {item?.social?.name}
-                      </Text>
-                    </View>
-                    <Text
-                      style={[
-                        tw`font-HalyardDisplayMedium text-base`,
-                        item?.status === "verified" && tw`text-[#1ED960]`,
-                        item?.status === "pending" && tw`text-[#92400E]`,
-                        item?.status === "unverified" && tw`text-[#FD7701]`,
-                        item?.status === "rejected" && tw`text-[#fd1201]`,
-                      ]}
+              {isAllSocialDataLoading ? (
+                <WalletHistorySkeleton dummyArray={6} />
+              ) : (
+                getAllSocialData?.data.map((item: any) => {
+                  return (
+                    <TouchableOpacity
+                      // disabled={
+                      //   item?.status === "verified" || item?.status === "pending"
+                      // }
+                      onPress={() => {
+                        handleShowDetails(item?.id);
+                      }}
+                      key={item.id}
+                      style={tw`flex-row items-center justify-between p-4 `}
                     >
-                      {item?.status}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <View style={tw`flex-row items-center gap-4`}>
+                        {/* <SvgXml width={40} height={40} xml={item.icon} /> */}
+                        <Image
+                          style={tw`w-6 h-6 rounded-full`}
+                          contentFit="cover"
+                          source={helpers.getImgFullUrl(item?.social?.icon_url)}
+                        />
+                        <Text
+                          style={tw`font-HalyardDisplayMedium text-xl text-white500`}
+                        >
+                          {item?.social?.name}
+                        </Text>
+                      </View>
+                      <Text
+                        style={[
+                          tw`font-HalyardDisplayMedium text-base`,
+                          item?.status === "verified" && tw`text-[#1ED960]`,
+                          item?.status === "pending" && tw`text-[#92400E]`,
+                          item?.status === "unverified" && tw`text-[#FD7701]`,
+                          item?.status === "rejected" && tw`text-[#fd1201]`,
+                        ]}
+                      >
+                        {item?.status}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </View>
           </ScrollView>
 
@@ -259,7 +339,10 @@ const SocialLinks = () => {
                       >
                         {socialLinkDetails?.status === "unverified" ? (
                           <TextInput
-                            onChangeText={() => {}}
+                            value={profile_name}
+                            onChangeText={(value) => {
+                              setProfile_name(value);
+                            }}
                             placeholder="@username"
                             placeholderTextColor="#A4A4A4"
                             style={tw` text-white500 flex-1 px-4`}
@@ -288,15 +371,25 @@ const SocialLinks = () => {
                       </View>
                       {socialLinkDetails?.status === "unverified" ? (
                         <View style={tw`py-6 flex-row gap-4 px-2`}>
-                          <TouchableOpacity
-                            style={tw`w-24 h-32 justify-center items-center bg-secondaryBtn rounded-lg `}
-                          >
-                            <View
-                              style={tw`w-12 h-12  justify-center items-center bg-bgBaseColor rounded-3xl`}
+                          {imageResult.uri ? (
+                            <Image
+                              source={{ uri: imageResult.uri }}
+                              style={tw`w-24 h-32 rounded-lg`}
+                              contentFit="cover"
+                            />
+                          ) : (
+                            <TouchableOpacity
+                              onPress={() => pickImage()}
+                              activeOpacity={0.7}
+                              style={tw`w-24 h-32 justify-center items-center bg-secondaryBtn rounded-lg `}
                             >
-                              <SvgXml xml={IconPlus} />
-                            </View>
-                          </TouchableOpacity>
+                              <View
+                                style={tw`w-12 h-12  justify-center items-center bg-bgBaseColor rounded-3xl`}
+                              >
+                                <SvgXml xml={IconPlus} />
+                              </View>
+                            </TouchableOpacity>
+                          )}
                         </View>
                       ) : (
                         <View style={tw`py-6 flex-row gap-4 px-2`}>
@@ -322,7 +415,10 @@ const SocialLinks = () => {
                           <TextInput
                             multiline={true}
                             textAlignVertical="top"
-                            onChangeText={() => {}}
+                            value={note}
+                            onChangeText={(value) => {
+                              setNote(value);
+                            }}
                             placeholder="Write additional note"
                             placeholderTextColor="#A4A4A4"
                             style={tw` text-white500 flex-1  px-4`}
@@ -390,6 +486,7 @@ const SocialLinks = () => {
                     }}
                   />
                   <PrimaryButton
+                    loading={isVerifySocialAccountLoading}
                     buttonText={
                       socialLinkDetails?.status === "unverified"
                         ? "Save Platform"
@@ -398,7 +495,7 @@ const SocialLinks = () => {
                     buttonContainerStyle={tw`w-full h-12 mb-1`}
                     onPress={() => {
                       socialLinkDetails?.status === "unverified"
-                        ? handleRequestSocialVerify()
+                        ? handleRequestSocialVerify(socialLinkDetails?.id)
                         : handleDetailsModalClose();
                     }}
                   />
