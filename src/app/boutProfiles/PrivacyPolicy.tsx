@@ -1,13 +1,36 @@
 import { IconPrivacyPolicyScreen } from "@/assets/icons";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
+import { useGetPrivacyPolicyQuery } from "@/src/redux/api/settingsSlices";
 import { router } from "expo-router";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
+import RenderHtml from "react-native-render-html";
 import { SvgXml } from "react-native-svg";
 
 const PrivacyPolicy = () => {
+  // ================== api end point ==================
+  const { data, isLoading, isError } = useGetPrivacyPolicyQuery({});
+  const { width } = useWindowDimensions();
+
+  if (isLoading) {
+    return (
+      <ViewProvider
+        containerStyle={tw`flex-1 justify-center items-center bg-bgBaseColor px-4 pt-8`}
+      >
+        <ActivityIndicator size="large" color="#ffffff" />
+      </ViewProvider>
+    );
+  }
+
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-8`}>
       <ScrollView
@@ -23,39 +46,19 @@ const PrivacyPolicy = () => {
             >
               Privacy Policy
             </Text>
-            <Text style={tw`font-HalyardDisplayRegular text-xs text-subtitle`}>
-              Updated July 17, 2025
+            <Text style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}>
+              Updated {helpers.formatDate(data?.data[0]?.updated_at)}
             </Text>
           </View>
         </View>
-
-        <Text style={tw`font-HalyardDisplayMedium text-xl text-white500 my-2`}>
-          1. Introduction
-        </Text>
-        <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-          Lorem ipsum dolor sit amet consectetur. Volutpat purus nunc tellus
-          lorem adipiscing. Convallis at mi dictumst nulla amet. Ipsum consequat
-          vel donec ut amet ante semper. Amet tempus tellus aliquam volutpat
-          enim dolor tristique.
-        </Text>
-        <Text style={tw`font-HalyardDisplayMedium text-xl text-white500 my-2`}>
-          2. Information We Collect
-        </Text>
-        <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-          Lorem ipsum dolor sit amet consectetur. Volutpat purus nunc tellus
-          lorem adipiscing. Convallis at mi dictumst nulla amet. Ipsum consequat
-          vel donec ut amet ante semper. Amet tempus tellus aliquam volutpat
-          enim dolor tristique.
-        </Text>
-        <Text style={tw`font-HalyardDisplayMedium text-xl text-white500 my-2`}>
-          3. Data Security
-        </Text>
-        <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-          Lorem ipsum dolor sit amet consectetur. Volutpat purus nunc tellus
-          lorem adipiscing. Convallis at mi dictumst nulla amet. Ipsum consequat
-          vel donec ut amet ante semper. Amet tempus tellus aliquam volutpat
-          enim dolor tristique.
-        </Text>
+        <RenderHtml
+          contentWidth={width}
+          source={{ html: data.data[0].policy }}
+          baseStyle={{
+            color: "#ffffff",
+            // fontSize: 14,
+          }}
+        />
       </ScrollView>
     </ViewProvider>
   );

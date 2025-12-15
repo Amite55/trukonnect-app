@@ -1,27 +1,20 @@
-import { IconCurrencyPrimaryColor } from "@/assets/icons";
-import {
-  ImgFastSplash,
-  ImgFourthSplash,
-  ImgSecondSplash,
-  ImgThirdSplash,
-} from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import { useProfile } from "@/src/hooks/useProfile";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
+import RefferalsSkeleton from "@/src/lib/Skeleton/RefferalsSkeleton";
 import tw from "@/src/lib/tailwind";
 import * as Clipboard from "expo-clipboard";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SvgXml } from "react-native-svg";
 
 const RefferalsScreen = () => {
-  const [activeTab, setActiveTab] = useState("user");
+  const [activeTab, setActiveTab] = useState("performer");
+  const [reffaralData, setReffaralData] = useState<any[]>([]);
   const { data: profileData, isLoading } = useProfile();
-
-  console.log(profileData, "hare is profile data ==========>");
 
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(profileData?.data?.user?.referral_code);
@@ -33,44 +26,28 @@ const RefferalsScreen = () => {
     });
   };
 
-  const referralUserData = [
-    {
-      id: 1,
-      name: "John Doe",
-      image: ImgFastSplash,
-      status: "Pending",
-    },
-    {
-      id: 6,
-      name: "John ",
-      image: ImgFastSplash,
-      status: "Paid",
-    },
-    {
-      id: 2,
-      name: " Doe",
-      image: ImgSecondSplash,
-      status: "Paid",
-    },
-    {
-      id: 3,
-      name: "John Doe",
-      image: ImgFourthSplash,
-      status: "Pending",
-    },
-    {
-      id: 4,
-      name: "John Doe",
-      image: ImgThirdSplash,
-      status: "Paid",
-    },
-    {
-      id: 5,
-      name: "John Doe",
-      image: ImgFastSplash,
-      status: "Paid",
-    },
-  ];
+  // ================== referral user data ==================
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (isLoading) return;
+        if (activeTab === "performer") {
+          setReffaralData(profileData?.data?.performer);
+        } else if (activeTab === "creators") {
+          setReffaralData(profileData?.data?.creator);
+        }
+      } catch (error: any) {
+        console.log(error, "this state data not updated -------->");
+      }
+    };
+    fetchData();
+  }, [activeTab, profileData]);
+
+  // --------------------- isloading ---------------------
+  if (isLoading) {
+    return <RefferalsSkeleton />;
+  }
+
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-4`}>
       <ScrollView
@@ -171,10 +148,10 @@ const RefferalsScreen = () => {
 
           <View style={tw`gap-1 items-center`}>
             <View style={tw`flex-row items-center gap-1`}>
-              <SvgXml xml={IconCurrencyPrimaryColor} />
               <Text
-                style={tw`font-HalyardDisplaySemiBold text-xl text-primaryBtn`}
+                style={tw`font-HalyardDisplaySemiBold text-lg text-primaryBtn`}
               >
+                {profileData?.data?.user?.country?.currency_code}{" "}
                 {profileData?.data?.user?.ref_income}
               </Text>
             </View>
@@ -192,11 +169,11 @@ const RefferalsScreen = () => {
           {/* User Tab */}
           <TouchableOpacity
             style={tw`flex-1`}
-            onPress={() => setActiveTab("user")}
+            onPress={() => setActiveTab("performer")}
           >
             <Text
               style={tw`font-HalyardDisplayMedium text-xl py-2 text-center ${
-                activeTab === "user"
+                activeTab === "performer"
                   ? "border-b border-primaryBtn text-primaryBtn"
                   : " text-subtitle"
               }`}
@@ -225,24 +202,26 @@ const RefferalsScreen = () => {
         {/* ---------------------- referral list --------------------- */}
 
         <View style={tw`gap-3 py-4`}>
-          {referralUserData.map((item, index) => {
-            return (
-              <View
-                key={index}
-                style={tw`flex-row justify-between items-center px-4 py-3`}
-              >
-                <View style={tw`flex-row items-center gap-2`}>
-                  <Image
-                    style={tw`w-8 h-8 rounded-full`}
-                    source={item?.image}
-                  />
-                  <Text
-                    style={tw`font-HalyardDisplayMedium text-base text-white500`}
-                  >
-                    {item?.name}
-                  </Text>
-                </View>
-                <Text
+          {reffaralData?.length > 0 ? (
+            Array.isArray(reffaralData) &&
+            reffaralData.map((item: any) => {
+              return (
+                <View
+                  key={item?.id}
+                  style={tw`flex-row justify-between items-center px-4 py-3`}
+                >
+                  <View style={tw`flex-row items-center gap-2`}>
+                    <Image
+                      style={tw`w-8 h-8 rounded-full`}
+                      source={helpers.getImgFullUrl(item?.avatar)}
+                    />
+                    <Text
+                      style={tw`font-HalyardDisplayMedium text-base text-white500`}
+                    >
+                      {item?.name}
+                    </Text>
+                  </View>
+                  {/* <Text
                   style={tw`font-HalyardDisplayRegular text-base ${
                     item.status === "Pending"
                       ? "text-primaryBtn"
@@ -250,10 +229,17 @@ const RefferalsScreen = () => {
                   } `}
                 >
                   {item.status}
-                </Text>
-              </View>
-            );
-          })}
+                </Text> */}
+                </View>
+              );
+            })
+          ) : (
+            <Text
+              style={tw`font-HalyardDisplayRegular text-base text-subtitle text-center`}
+            >
+              No Referrals
+            </Text>
+          )}
         </View>
       </ScrollView>
     </ViewProvider>

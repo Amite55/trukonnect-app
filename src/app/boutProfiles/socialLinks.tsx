@@ -39,7 +39,8 @@ const SocialLinks = () => {
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
   const [profile_name, setProfile_name] = React.useState("");
   const [note, setNote] = React.useState("");
-  const [imageResult, setImageResult] = React.useState<any>("");
+  const [imageResult, setImageResult] =
+    React.useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const handleDetailsModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -106,33 +107,23 @@ const SocialLinks = () => {
         });
         return;
       } else {
-        let filename = imageResult.fileName;
-        if (!filename) {
-          const uriParts = imageResult.uri.split("/");
-          filename = uriParts[uriParts.length - 1];
-        }
         // setImagePreview(selectedImage.uri);
-        const ext = filename.split(".").pop()?.toLowerCase();
-        let mimeType = "image/jpeg";
-        if (ext === "jpg" || ext === "jpeg") {
-          mimeType = "image/jpeg";
-        } else if (ext === "png") {
-          mimeType = "image/png";
-        } else if (ext === "gif") {
-          mimeType = "image/gif";
-        }
-        const form = new FormData();
-        form.append("profile_image", {
-          uri: imageResult.uri,
-          name: filename,
-          type: mimeType,
+
+        const formdata = new FormData();
+        formdata.append("profile_name", profile_name);
+        formdata.append("note", note);
+        formdata.append("_method", "PUT");
+        formdata.append("profile_image", {
+          uri: imageResult?.uri,
+          name: imageResult?.fileName,
+          type: imageResult?.mimeType,
         } as any);
-        form.append("profile_name", profile_name);
-        form.append("note", note);
-        form.append("_method", "PUT");
+
+        // console.log(formdata?._parts[3], "this is form data ----------->");
+
         const res = await verifySocialAccount({
           id: id,
-          form: form,
+          form: formdata,
         }).unwrap();
         console.log(res, "this is verify request submitted ");
         if (res) {
@@ -142,7 +133,7 @@ const SocialLinks = () => {
           });
           setTimeout(() => {
             handleDetailsModalClose();
-            setImageResult("");
+            setImageResult(null);
           }, 1000);
         }
       }
@@ -172,7 +163,7 @@ const SocialLinks = () => {
         const selectedImage = result.assets[0];
         setImageResult(selectedImage);
       } else {
-        setImageResult("");
+        setImageResult(null);
         console.log("Image selection cancelled");
       }
     } catch (error: any) {
@@ -371,12 +362,20 @@ const SocialLinks = () => {
                       </View>
                       {socialLinkDetails?.status === "unverified" ? (
                         <View style={tw`py-6 flex-row gap-4 px-2`}>
-                          {imageResult.uri ? (
-                            <Image
-                              source={{ uri: imageResult.uri }}
-                              style={tw`w-24 h-32 rounded-lg`}
-                              contentFit="cover"
-                            />
+                          {imageResult ? (
+                            <View style={tw`relative`}>
+                              <Image
+                                source={{ uri: imageResult.uri }}
+                                style={tw`w-24 h-32 rounded-lg`}
+                                contentFit="cover"
+                              />
+                              <TouchableOpacity
+                                style={tw`absolute top-1 right-1 `}
+                                onPress={() => setImageResult(null)}
+                              >
+                                <SvgXml width={16} xml={IconCross} />
+                              </TouchableOpacity>
+                            </View>
                           ) : (
                             <TouchableOpacity
                               onPress={() => pickImage()}
@@ -392,7 +391,7 @@ const SocialLinks = () => {
                           )}
                         </View>
                       ) : (
-                        <View style={tw`py-6 flex-row gap-4 px-2`}>
+                        <View style={tw` py-6 flex-row gap-4 px-2`}>
                           <Image
                             source={helpers.getImgFullUrl(
                               socialLinkDetails?.profile_image
@@ -495,7 +494,7 @@ const SocialLinks = () => {
                     buttonContainerStyle={tw`w-full h-12 mb-1`}
                     onPress={() => {
                       socialLinkDetails?.status === "unverified"
-                        ? handleRequestSocialVerify(socialLinkDetails?.id)
+                        ? handleRequestSocialVerify(socialLinkDetails?.sm_id)
                         : handleDetailsModalClose();
                     }}
                   />

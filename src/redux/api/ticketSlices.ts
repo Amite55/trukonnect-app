@@ -3,10 +3,14 @@ import { api } from "../BaseApi";
 const tickedSlices = api.injectEndpoints({
   endpoints: (builder) => ({
     openTicket: builder.mutation<any, any>({
-      query: (data) => ({
+      query: (formdata) => ({
         url: "/app/openticket",
         method: "POST",
-        body: data,
+        body: formdata,
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
       }),
       invalidatesTags: ["ticket"],
     }),
