@@ -61,3 +61,16 @@ const BrandTakesSlieces = api.injectEndpoints({
     };
   },
 });
+
+export const {
+  useCreateTasksMutation,
+  useGetMyTasksQuery,
+  useEditTasksMutation,
+  useGetMyTaskDetailsQuery,
+  useLazyGetMyTasksQuery,
+  useLazyGetMyTaskDetailsQuery,
+  useGetBrandHomePageQuery,
+  useGetOrderDetailsQuery,
+  useGetCompleteTaskesQuery,
+  useOngoingTaskesQuery,
+} = BrandTakesSlieces;

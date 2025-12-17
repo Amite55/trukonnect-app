@@ -32,7 +32,7 @@ const profileSlices = api.injectEndpoints({
     }),
     socialVerification: builder.mutation<any, any>({
       query: ({ id, form }) => {
-        console.log(id, "4444444444", form, "==========");
+        // console.log(id, "4444444444", form, "==========");
         return {
           url: `/app/socialverification/${id}`,
           method: "POST",

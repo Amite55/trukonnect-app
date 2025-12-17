@@ -3,18 +3,23 @@ import {
   IconCompleteTask,
   IconCurrencyPrimaryColor,
   IconHelpAndSupport,
-  IconInstagram,
   IconOngoing,
   IconPoint,
   IconUserPaid,
 } from "@/assets/icons";
-import { ImgFastSplash } from "@/assets/image";
 import CreatorCounterCard from "@/src/Components/CreatorCounterCard";
 import HomeProfileBar from "@/src/Components/HomeProfileBar";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import { useProfile } from "@/src/hooks/useProfile";
+import { helpers } from "@/src/lib/helper";
+import BrandHomeDashboardSKeleton from "@/src/lib/Skeleton/BrandHomeDashboardSKeleton";
+import TaskDetailsBottomSheetSkeleton from "@/src/lib/Skeleton/TaskDetailsBottomSheetSkeleton";
 import tw from "@/src/lib/tailwind";
+import {
+  useGetBrandHomePageQuery,
+  useLazyGetMyTaskDetailsQuery,
+} from "@/src/redux/api/brandSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -31,12 +36,43 @@ const Dashboard = () => {
   const ResentTaskBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { data: profileData } = useProfile();
 
+  // ---------------- api end point ----------------
+  const { data: brandHomeData, isLoading: isBandHomeDataLoading } =
+    useGetBrandHomePageQuery({});
+  const [
+    getRecentTaskDetails,
+    { data: recentTaskDetails, isLoading: isRecentTaskDetailsLoading },
+  ] = useLazyGetMyTaskDetailsQuery();
+
+  const quantity = Number(recentTaskDetails?.data?.quantity) || 0;
+  const performed = Number(recentTaskDetails?.data?.performed) || 0;
+
+  const progress = performed > 0 ? quantity / performed : 0;
+
+  // --------------- handle details modal ---------------
+  const handleDetails = async (id: any) => {
+    try {
+      const response = await getRecentTaskDetails(id).unwrap();
+      if (response) {
+        handleResentTaskModalOpen();
+      }
+    } catch (error: any) {
+      console.log(error, "Details not show -->");
+    }
+  };
+
   const handleResentTaskModalOpen = useCallback(async () => {
     ResentTaskBottomSheetModalRef.current?.present();
   }, []);
   const handleResentTaskModalClose = useCallback(() => {
     ResentTaskBottomSheetModalRef.current?.dismiss();
   }, []);
+
+  // ================= loading skeleton ====================
+  if (isBandHomeDataLoading) {
+    return <BrandHomeDashboardSKeleton />;
+  }
+
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4 pt-3 bg-bgBaseColor`}>
       <ScrollView
@@ -60,7 +96,7 @@ const Dashboard = () => {
               }}
               icon={IconCompleteTask}
               title=" Completed Orders"
-              counter={243}
+              counter={brandHomeData?.data?.complete || 0}
             />
             <CreatorCounterCard
               onPress={() => {
@@ -68,7 +104,7 @@ const Dashboard = () => {
               }}
               icon={IconOngoing}
               title="Ongoing Orders"
-              counter={243}
+              counter={brandHomeData?.data?.ongoing}
             />
           </View>
 
@@ -79,14 +115,14 @@ const Dashboard = () => {
               }}
               icon={IconUserPaid}
               title=" Users Paid"
-              counter={24}
+              counter={brandHomeData?.data?.total_users_paid || 0}
             />
             <CreatorCounterCard
               onPress={() => {
                 router.push("/boutProfiles/support");
               }}
               icon={IconHelpAndSupport}
-              title="  Help & Support"
+              title=" Help & Support"
             />
           </View>
         </View>
@@ -105,25 +141,33 @@ const Dashboard = () => {
           Recent Tasks
         </Text>
         <View style={tw`gap-2`}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item, index) => {
+          {brandHomeData?.data?.recent_tasks.map((item: any) => {
             return (
               <TouchableOpacity
-                onPress={handleResentTaskModalOpen}
-                key={index}
+                // onPress={handleResentTaskModalOpen}
+                onPress={() => handleDetails(item?.id)}
+                key={item?.id}
+                activeOpacity={0.7}
                 style={tw`flex-row items-center justify-between p-4 bg-transparentBG rounded-2xl `}
               >
                 <View style={tw`flex-row items-center gap-2`}>
-                  <SvgXml xml={IconInstagram} />
+                  {/* <SvgXml xml={IconInstagram} /> */}
+                  <Image
+                    source={helpers.getImgFullUrl(item?.social?.icon_url)}
+                    style={tw`w-6 h-6 rounded-full`}
+                    contentFit="cover"
+                  />
                   <Text
                     style={tw`font-HalyardDisplayRegular text-xl text-white500`}
                   >
-                    Instagram Follows
+                    {item?.social?.name}
                   </Text>
                 </View>
                 <Text
                   style={tw`font-HalyardDisplayRegular text-primaryBtn text-xs`}
                 >
-                  24 /<Text style={tw`text-subtitle`}>60</Text>
+                  {item?.performed} /
+                  <Text style={tw`text-subtitle`}>{item?.quantity}</Text>
                 </Text>
               </TouchableOpacity>
             );
@@ -135,7 +179,7 @@ const Dashboard = () => {
       <BottomSheetModalProvider>
         <BottomSheetModal
           ref={ResentTaskBottomSheetModalRef}
-          snapPoints={["60%", "60%"]}
+          snapPoints={["100%"]}
           containerStyle={tw`bg-gray-500 bg-opacity-20`}
           backdropComponent={(props) => (
             <BottomSheetBackdrop
@@ -147,140 +191,156 @@ const Dashboard = () => {
           )}
         >
           <BottomSheetScrollView contentContainerStyle={tw`flex-1  bg-black`}>
-            <View
-              style={tw`rounded-3xl bg-black px-4 py-6 flex-grow justify-between`}
-            >
-              <View>
-                <View style={tw`flex-row items-center gap-2 pb-4`}>
-                  <Image
-                    style={tw`w-12 h-12 rounded-full `}
-                    source={ImgFastSplash}
-                  />
-                  <View>
+            {isRecentTaskDetailsLoading ? (
+              <TaskDetailsBottomSheetSkeleton />
+            ) : (
+              <View
+                style={tw`rounded-3xl bg-black px-4 py-6 flex-grow justify-between`}
+              >
+                <View>
+                  <View style={tw`flex-row items-center gap-2 pb-4`}>
+                    <Image
+                      style={tw`w-12 h-12 rounded-full `}
+                      source={helpers.getImgFullUrl(
+                        profileData?.data?.user?.avatar
+                      )}
+                      contentFit="cover"
+                    />
+                    <View>
+                      <Text
+                        style={tw`font-HalyardDisplayMedium text-xl text-white500`}
+                      >
+                        {profileData?.data?.user?.name}
+                      </Text>
+                      <Text
+                        style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
+                      >
+                        {helpers.timeAgo(recentTaskDetails?.data?.created_at)}
+                      </Text>
+                    </View>
+                  </View>
+                  {/* Description */}
+                  <Text
+                    style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
+                  >
+                    {recentTaskDetails?.data?.engagement?.description}
+                  </Text>
+
+                  {/* Tokens */}
+                  <View style={tw`flex-row items-center justify-between mt-3`}>
                     <Text
-                      style={tw`font-HalyardDisplayMedium text-xl text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      Star Bucks
+                      Total tokens
+                    </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconPoint} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        {recentTaskDetails?.data?.total_token}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Task from */}
+                  <View style={tw`flex-row items-center justify-between`}>
+                    <Text
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                    >
+                      Task from
+                    </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <Image
+                        source={helpers.getImgFullUrl(
+                          recentTaskDetails?.data?.social?.icon_url
+                        )}
+                        style={tw`w-6 h-6 rounded-full`}
+                        contentFit="cover"
+                      />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        {recentTaskDetails?.data?.social?.name}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* date line */}
+                  <View style={tw`flex-row items-center justify-between`}>
+                    <Text
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                    >
+                      Completed Date
+                    </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCalendar} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      >
+                        {helpers.formatDate(
+                          recentTaskDetails?.data?.created_at
+                        )}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* =========================== Progress of task  =========================== */}
+                  <View style={tw`flex-row items-center justify-between `}>
+                    <Text
+                      style={tw`font-HalyardDisplaySemiBold text-base text-white500 `}
+                    >
+                      Progress of task
                     </Text>
                     <Text
-                      style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
+                      style={tw`font-HalyardDisplayRegular text-base text-primaryBtn`}
                     >
-                      13 Aug, 2025
+                      {recentTaskDetails?.data?.performed}/
+                      <Text style={tw`text-white500`}>
+                        {recentTaskDetails?.data?.quantity}
+                      </Text>
                     </Text>
                   </View>
-                </View>
-                {/* Description */}
-                <Text
-                  style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
-                >
-                  Like the latest Star Bucks ad post on Instagram. Earn 2 tokens
-                  instantly for showing your support!
-                  {"\n"}- Tap the link
-                  {"\n"}- Check the profile picture
-                  {"\n"}- React on the post
-                </Text>
-
-                {/* Tokens */}
-                <View style={tw`flex-row items-center justify-between mt-3`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total tokens
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconPoint} />
+                  {/* Total Cost */}
+                  <View style={tw`flex-row items-center justify-between pt-2`}>
                     <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
+                      style={tw`font-HalyardDisplayRegular text-base text-white500`}
                     >
-                      200
+                      Total Cost
                     </Text>
+                    <View style={tw`flex-row items-center gap-2`}>
+                      <SvgXml xml={IconCurrencyPrimaryColor} />
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
+                      >
+                        {Number(recentTaskDetails?.data?.total_price).toFixed(
+                          2
+                        )}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={tw`px-4 mt-4 mb-6`}>
+                    <Progress.Bar
+                      color="#FD7701"
+                      borderRadius={4}
+                      borderWidth={0}
+                      height={8}
+                      progress={progress || 0}
+                      unfilledColor="#333"
+                      width={300}
+                    />
                   </View>
                 </View>
-
-                {/* Task from */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Task from
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconInstagram} />
-                    <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
-                    >
-                      Instagram
-                    </Text>
-                  </View>
-                </View>
-
-                {/* date line */}
-                <View style={tw`flex-row items-center justify-between`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Completed Date
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCalendar} />
-                    <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
-                    >
-                      13 Aug, 2025
-                    </Text>
-                  </View>
-                </View>
-
-                {/* =========================== Progress of task  =========================== */}
-
-                <View style={tw`flex-row items-center justify-between px-2`}>
-                  <Text
-                    style={tw`font-HalyardDisplaySemiBold text-base text-white500 mt-4 mb-2`}
-                  >
-                    Progress of task
-                  </Text>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-primaryBtn`}
-                  >
-                    45/
-                    <Text style={tw`text-white500`}>60</Text>
-                  </Text>
-                </View>
-                {/* Total Cost */}
-                <View style={tw`flex-row items-center justify-between pt-2`}>
-                  <Text
-                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                  >
-                    Total Cost
-                  </Text>
-                  <View style={tw`flex-row items-center gap-2`}>
-                    <SvgXml xml={IconCurrencyPrimaryColor} />
-                    <Text
-                      style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
-                    >
-                      5896.00
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={tw`px-4 mt-2 mb-6`}>
-                  <Progress.Bar
-                    color="#FD7701"
-                    borderRadius={4}
-                    borderWidth={0}
-                    height={8}
-                    progress={0.7}
-                    unfilledColor="#333"
-                    width={400}
+                <View style={tw`pb-2`}>
+                  <PrimaryButton
+                    onPress={() => handleResentTaskModalClose()}
+                    buttonContainerStyle={tw`mb-0`}
+                    buttonText="Close"
                   />
                 </View>
               </View>
-              <PrimaryButton
-                onPress={() => handleResentTaskModalClose()}
-                buttonContainerStyle={tw`mb-2`}
-                buttonText="Close"
-              />
-            </View>
+            )}
           </BottomSheetScrollView>
         </BottomSheetModal>
       </BottomSheetModalProvider>

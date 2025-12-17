@@ -4,5 +4,6 @@ export const useProfile = () => {
   return useGetMyProfileQuery(undefined, {
     refetchOnMountOrArgChange: false,
     refetchOnFocus: false,
+    refetchOnReconnect: true,
   });
 };

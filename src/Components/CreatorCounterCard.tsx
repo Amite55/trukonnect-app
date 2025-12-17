@@ -7,7 +7,7 @@ interface Props {
   onPress: () => void;
   icon: any;
   title: string;
-  counter: number;
+  counter?: number;
   disabled?: boolean;
 }
 
