@@ -46,7 +46,6 @@ const Dashboard = () => {
 
   const quantity = Number(recentTaskDetails?.data?.quantity) || 0;
   const performed = Number(recentTaskDetails?.data?.performed) || 0;
-
   const progress = performed > 0 ? quantity / performed : 0;
 
   // --------------- handle details modal ---------------
@@ -92,7 +91,10 @@ const Dashboard = () => {
           <View style={tw` flex-row  gap-2`}>
             <CreatorCounterCard
               onPress={() => {
-                router.push("/taskCreator/completeOrderTask");
+                router.push({
+                  pathname: "/taskCreator/completeOrderTask",
+                  params: { type: "Completed" },
+                });
               }}
               icon={IconCompleteTask}
               title=" Completed Orders"
@@ -100,7 +102,10 @@ const Dashboard = () => {
             />
             <CreatorCounterCard
               onPress={() => {
-                router.push("/taskCreator/ongoingOrderTask");
+                router.push({
+                  pathname: "/taskCreator/completeOrderTask",
+                  params: { type: "Pending" },
+                });
               }}
               icon={IconOngoing}
               title="Ongoing Orders"

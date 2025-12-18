@@ -6,7 +6,6 @@ const _layout = () => {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="creatorHomTabs" />
       <Stack.Screen name="completeOrderTask" />
-      <Stack.Screen name="ongoingOrderTask" />
       <Stack.Screen name="myTaskDetails" />
       <Stack.Screen name="editTask" />
     </Stack>

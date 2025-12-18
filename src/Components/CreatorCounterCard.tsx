@@ -25,17 +25,17 @@ const CreatorCounterCard = ({
       delayPressOut={0}
       disabled={disabled}
       onPress={onPress}
-      style={tw`flex-1 h-36  items-center border border-borderColor bg-transparentBG p-6 rounded-3xl  gap-2`}
+      style={tw`flex-1 h-36  items-center border border-borderColor bg-transparentBG px-4 py-6 rounded-3xl  gap-2`}
     >
       <SvgXml xml={icon || ""} />
       <Text
         numberOfLines={1}
-        style={tw`font-HalyardDisplayRegular text-base text-subtitle`}
+        style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
       >
         {title}
       </Text>
       <Text style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}>
-        {counter || null}
+        {counter || 0}
       </Text>
     </TouchableOpacity>
   );

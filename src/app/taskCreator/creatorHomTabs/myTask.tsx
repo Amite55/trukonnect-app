@@ -1,5 +1,6 @@
 import { IconCalender } from "@/assets/icons";
-import { TaskWorkingData } from "@/src/Data/DataAll";
+import { helpers } from "@/src/lib/helper";
+import TaskCardSkeletonList from "@/src/lib/Skeleton/TasksSkeletion";
 import tw from "@/src/lib/tailwind";
 import { useLazyGetMyTasksQuery } from "@/src/redux/api/brandSlices";
 import {
@@ -8,6 +9,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -50,7 +52,6 @@ const MyTask = () => {
           _timestamp: Date.now(),
         }).unwrap();
 
-        console.log(res?.data, "this is my task response ------------->");
         const newData = res?.data?.data || [];
         const totalPages = res?.data?.last_page || 1;
 
@@ -172,35 +173,55 @@ const MyTask = () => {
         onPress={() => {
           router.push({
             pathname: "/taskCreator/myTaskDetails",
-            params: { status: status },
+            params: { id: item?.id },
           });
         }}
         style={tw`p-4 bg-transparentBG rounded-2xl gap-2`}
       >
         <View style={tw`flex-row justify-between items-center`}>
           <View style={tw`flex-row items-center gap-2`}>
-            <SvgXml xml={item.icon} />
+            <Image
+              style={tw`w-6 h-6 rounded-full`}
+              contentFit="cover"
+              source={helpers.getImgFullUrl(item?.social?.icon_url)}
+            />
             <Text style={tw`font-HalyardDisplayMedium text-lg text-white500`}>
-              YouTube Video Views
+              {item?.engagement?.engagement_name}
             </Text>
           </View>
 
           <Text style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}>
-            {item.date}
+            {helpers.formatDate(item?.created_at)}
           </Text>
         </View>
 
         <Text style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}>
-          {item.description}
+          {item?.description}
         </Text>
       </TouchableOpacity>
     );
   };
 
+  // Render empty component
+  const renderEmptyComponent = useCallback(
+    () => (
+      <View style={tw`py-8 items-center`}>
+        <Text style={tw`text-white500 font-HalyardDisplayRegular text-base`}>
+          {isGetMyTaskLoading ? "Loading..." : "No tasks available"}
+        </Text>
+      </View>
+    ),
+    [isGetMyTaskLoading]
+  );
+
+  // Render loading indicator for initial load
+  if (isGetMyTaskLoading && page === 1) {
+    return <TaskCardSkeletonList dummyArray={5} />;
+  }
   return (
     <>
       <FlatList
-        data={TaskWorkingData}
+        data={myTaskData}
         keyExtractor={(item, index) => item?.id.toString()}
         contentContainerStyle={tw`gap-3 py-4 pb-6`}
         style={tw`bg-bgBaseColor flex-1 px-4`}
@@ -213,6 +234,7 @@ const MyTask = () => {
         onRefresh={handleRefresh}
         ListHeaderComponent={RenderHeader}
         renderItem={renderItem}
+        ListEmptyComponent={renderEmptyComponent}
       />
 
       {/* -------------------  calendar  bottom saheet ---------------- */}

@@ -1,10 +1,12 @@
 import { IconGhanaCurrencyPrimaryColor } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
-import { SocialLinkData } from "@/src/Data/DataAll";
+import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
+import { useGetAllSocialQuery } from "@/src/redux/api/profileSlices";
+import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
   ScrollView,
   Text,
@@ -12,15 +14,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Dropdown, MultiSelect } from "react-native-element-dropdown";
+import { Dropdown } from "react-native-element-dropdown";
 import { SvgXml } from "react-native-svg";
 
 const BuyTasks = () => {
   const [selectedId, setSelectedId] = React.useState(null);
   const [taskType, setTaskType] = React.useState(null);
-  const [selected, setSelected] = useState([]);
 
-  const handleCheckBox = async (id) => {
+  // ============= api end point    ==================
+  const { data: socialMediaList, isLoading: isLoadingSocialMediaList } =
+    useGetAllSocialQuery({});
+
+  // ============== handle selected social list ================
+  const handleCheckBox = async (id: any) => {
     try {
       if (selectedId === id) {
         setSelectedId(null);
@@ -60,17 +66,6 @@ const BuyTasks = () => {
     },
   ];
 
-  const countryNameData = [
-    {
-      id: 1,
-      name: "Ghana",
-    },
-    {
-      id: 2,
-      name: "Nigeria",
-    },
-  ];
-
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 `}>
       <ScrollView
@@ -87,11 +82,11 @@ const BuyTasks = () => {
           Select a social media
         </Text>
         <View style={tw`py-4 gap-3`}>
-          {SocialLinkData.map((item, index) => {
-            const isChecked = selectedId === item.id;
+          {socialMediaList?.data.map((item: any) => {
+            const isChecked = selectedId === item?.id;
             return (
               <TouchableOpacity
-                activeOpacity={0.5}
+                activeOpacity={0.6}
                 delayPressIn={0}
                 delayPressOut={0}
                 onPress={() => handleCheckBox(item.id)}
@@ -99,11 +94,15 @@ const BuyTasks = () => {
                 key={item.id}
               >
                 <View style={tw`flex-row items-center gap-2`}>
-                  <SvgXml style={tw`w-6 h-6 `} xml={item.icon} />
+                  <Image
+                    style={tw`w-6 h-6 rounded-full`}
+                    contentFit="cover"
+                    source={helpers.getImgFullUrl(item?.social?.icon_url)}
+                  />
                   <Text
                     style={tw`font-HalyardDisplayMedium text-base text-subtitle`}
                   >
-                    {item.name}
+                    {item?.social?.name}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -144,7 +143,7 @@ const BuyTasks = () => {
             activeColor="rgba(255,255,255,0.1)"
             placeholder="Select the engagement type"
             data={taskTypeData}
-            dropdownPosition="top"
+            dropdownPosition="bottom"
             maxHeight={300}
             labelField="name"
             valueField="name"
@@ -180,59 +179,12 @@ const BuyTasks = () => {
           />
         </View>
 
-        {/* ============================ Select Audience ========================== */}
-
-        <Text
-          style={tw`font-HalyardDisplaySemiBold text-xl text-white500 pt-4`}
-        >
-          Select Audience
-        </Text>
-
-        {/* -=--------------------------- country picker --------------------------  */}
-        <View style={tw`bg-inputBgColor h-14 rounded-lg mt-3`}>
-          <MultiSelect
-            style={tw.style(`h-14 rounded-lg px-4 bg-inputBgColor`)}
-            placeholderStyle={tw`text-sm text-subtitle`}
-            selectedTextStyle={tw`text-base text-white500`}
-            containerStyle={tw`bg-black rounded-lg`}
-            itemTextStyle={tw`text-white`}
-            activeColor="rgba(255,255,255,0.1)"
-            placeholder="Select the country"
-            data={countryNameData}
-            dropdownPosition="top"
-            maxHeight={300}
-            labelField="name"
-            valueField="name"
-            value={selected}
-            onChange={(items) => {
-              setSelected(items);
-            }}
-            renderSelectedItem={() => <View />}
-          />
-        </View>
-        {selected?.length > 0 && (
-          <View style={tw`flex-row flex-wrap py-2`}>
-            {selected.map((item, index) => {
-              return (
-                <View
-                  key={index}
-                  style={tw`bg-black items-center rounded-md px-3 py-1 m-1 border border-white500`}
-                >
-                  <Text style={tw`text-white text-sm`}>{item}</Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-
         {/* ============================ Description ========================== */}
-
         <Text
           style={tw`font-HalyardDisplaySemiBold text-xl text-white500 py-4`}
         >
           Description
         </Text>
-
         <View style={tw`flex-1 h-24  px-4 rounded-lg bg-inputBgColor  gap-3`}>
           <TextInput
             onChangeText={(value) => console.log(value)}
@@ -246,7 +198,6 @@ const BuyTasks = () => {
         </View>
 
         {/* ============================ Link ========================== */}
-
         <Text
           style={tw`font-HalyardDisplaySemiBold text-xl text-white500 py-4`}
         >

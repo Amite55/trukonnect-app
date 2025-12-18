@@ -1,7 +1,5 @@
 import {
   IconCalender,
-  IconGhanaFlag,
-  IconInstagram,
   IconMultipleUser,
   IconPoint,
   IconTotalToken,
@@ -11,14 +9,51 @@ import CreatorCounterCard from "@/src/Components/CreatorCounterCard";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
+import TaskDetailsSkeleton from "@/src/lib/Skeleton/TaskDetailsSkeleton";
 import tw from "@/src/lib/tailwind";
+import { useGetMyTaskDetailsQuery } from "@/src/redux/api/brandSlices";
+import * as Clipboard from "expo-clipboard";
+import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import {
+  Linking,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const MyTaskDetails = () => {
-  const { status } = useLocalSearchParams();
+  const { id } = useLocalSearchParams();
+
+  // ================ api end point ==================
+  const { data: myTaskDetailsData, isLoading: isMyTaskDetailsLoading } =
+    useGetMyTaskDetailsQuery(id);
+
+  if (isMyTaskDetailsLoading) {
+    return <TaskDetailsSkeleton />;
+  }
+  // ====================== handle open link ======================
+  const handleOpenLink = (link: any) => {
+    Linking.openURL(link);
+  };
+
+  // ============ onLong press handle =================
+  const handleCopyLink = async (link: any) => {
+    const success = await Clipboard.setStringAsync(link);
+    if (success) {
+      router.push({
+        pathname: "/Toaster",
+        params: {
+          res: "Copied to clipboard",
+        },
+      });
+    }
+  };
+
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4 pt-3 bg-bgBaseColor`}>
       <ScrollView
@@ -27,19 +62,29 @@ const MyTaskDetails = () => {
         contentContainerStyle={tw` flex-grow justify-between`}
       >
         <View>
-          <BackTitleButton title="Completed orders" />
+          <BackTitleButton
+            title={
+              myTaskDetailsData?.data?.status === "pending"
+                ? "Pending Order"
+                : myTaskDetailsData?.data?.status === "completed"
+                ? "Completed Order"
+                : myTaskDetailsData?.data?.status === "rejected"
+                ? "Rejected Order"
+                : "My Order Details"
+            }
+          />
 
-          {status === "Completed" && (
+          {myTaskDetailsData?.data?.status === "completed" && (
             <View style={tw`flex-row gap-2`}>
               <CreatorCounterCard
-                counter={250}
+                counter={myTaskDetailsData?.data?.performed || 0}
                 icon={IconMultipleUser}
                 title="Total Performers"
                 disabled
                 onPress={() => null}
               />
               <CreatorCounterCard
-                counter={243}
+                counter={myTaskDetailsData?.data?.token_distributed || 0}
                 icon={IconTotalToken}
                 title="Total Tokens Distributed"
                 disabled
@@ -53,15 +98,11 @@ const MyTaskDetails = () => {
           <Text
             style={tw`font-HalyardDisplaySemiBold text-base text-white500 mt-4 mb-2`}
           >
-            Like this post
+            {myTaskDetailsData?.data?.engagement?.engagement_name}
           </Text>
           {/* Description */}
           <Text style={tw`font-HalyardDisplayRegular text-base text-subtitle`}>
-            Like the latest Star Bucks ad post on Instagram. Earn 2 tokens
-            instantly for showing your support!
-            {"\n"}- Tap the link
-            {"\n"}- Check the profile picture
-            {"\n"}- React on the post
+            {myTaskDetailsData?.data?.engagement?.description}
           </Text>
           <View>
             {/* -==================== qauantity ===================== */}
@@ -74,7 +115,7 @@ const MyTaskDetails = () => {
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
               >
-                150
+                {myTaskDetailsData?.data?.quantity}
               </Text>
             </View>
             {/* -==================== Selected Audience ===================== */}
@@ -85,11 +126,18 @@ const MyTaskDetails = () => {
                 Selected Audience
               </Text>
               <View style={tw`flex-row items-center gap-2`}>
-                <SvgXml xml={IconGhanaFlag} />
+                {/* <SvgXml xml={IconGhanaFlag} /> */}
+                <Image
+                  style={tw`w-6 h-6 rounded-full`}
+                  contentFit="cover"
+                  source={helpers.getImgFullUrl(
+                    myTaskDetailsData?.data?.country?.flag
+                  )}
+                />
                 <Text
                   style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                 >
-                  Ghana
+                  {myTaskDetailsData?.data?.country?.name}
                 </Text>
               </View>
             </View>
@@ -105,7 +153,7 @@ const MyTaskDetails = () => {
                 <Text
                   style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                 >
-                  05
+                  {myTaskDetailsData?.data?.per_perform}
                 </Text>
               </View>
             </View>
@@ -117,11 +165,18 @@ const MyTaskDetails = () => {
                 Platform
               </Text>
               <View style={tw`flex-row items-center gap-2`}>
-                <SvgXml xml={IconInstagram} />
+                {/* <SvgXml xml={IconInstagram} /> */}
+                <Image
+                  style={tw`w-6 h-6 rounded-full`}
+                  contentFit="cover"
+                  source={helpers.getImgFullUrl(
+                    myTaskDetailsData?.data?.social?.icon_url
+                  )}
+                />
                 <Text
                   style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                 >
-                  Instagram
+                  {myTaskDetailsData?.data?.social?.name}
                 </Text>
               </View>
             </View>
@@ -137,7 +192,7 @@ const MyTaskDetails = () => {
                 <Text
                   style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
                 >
-                  13 Aug, 2025
+                  {helpers.formatDate(myTaskDetailsData?.data?.created_at)}
                 </Text>
               </View>
             </View>
@@ -150,17 +205,28 @@ const MyTaskDetails = () => {
                 Link
               </Text>
 
-              <Text
-                style={tw`font-HalyardDisplayRegular text-base text-blue-700`}
+              <TouchableOpacity
+                onPress={() => handleOpenLink(myTaskDetailsData?.data?.link)}
+                onLongPress={() =>
+                  handleCopyLink(myTaskDetailsData?.data?.link)
+                }
+                delayLongPress={400}
+                activeOpacity={0.6}
               >
-                http//:hdurbakjdfb...
-              </Text>
+                <Text
+                  style={tw`font-HalyardDisplayRegular text-base text-blue-700`}
+                >
+                  {myTaskDetailsData?.data?.link?.length <= 25
+                    ? myTaskDetailsData?.data?.link
+                    : myTaskDetailsData?.data?.link?.slice(0, 25) + "..."}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
           {/* ===================== dynamic ======================= */}
 
-          {status === "Rejected" && (
+          {myTaskDetailsData?.data?.status === "rejected" && (
             <View>
               <Text
                 style={tw`font-HalyardDisplaySemiBold text-base text-white500 mt-6 mb-2`}
@@ -180,7 +246,7 @@ const MyTaskDetails = () => {
         </View>
 
         <View style={tw`pb-3`}>
-          {status === "Pending Verification" && (
+          {myTaskDetailsData?.data?.status === "pending" && (
             <View
               style={tw`flex-row items-center gap-2 border border-borderColor px-4 py-2 rounded-2xl`}
             >
@@ -193,12 +259,15 @@ const MyTaskDetails = () => {
             </View>
           )}
 
-          {status === "Rejected" && (
+          {myTaskDetailsData?.data?.status === "rejected" && (
             <PrimaryButton
               buttonContainerStyle={tw`w-full h-12 mb-1`}
               buttonText="Edit the task"
               onPress={() => {
-                router.push("/taskCreator/editTask");
+                router.push({
+                  pathname: "/taskCreator/editTask",
+                  params: { id: myTaskDetailsData?.data?.id },
+                });
               }}
             />
           )}

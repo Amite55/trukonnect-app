@@ -12,17 +12,25 @@ const BrandTakesSlieces = api.injectEndpoints({
         invalidatesTags: ["taskes"],
       }),
       getMyTasks: builder.query<any, any>({
-        query: () => ({
+        query: ({ status, page, per_page, start_date }) => ({
           url: "/app/task/all",
+          params: {
+            status,
+            page,
+            per_page,
+            ...(start_date ? { start_date } : {}),
+          },
         }),
         providesTags: ["taskes"],
       }),
       editTasks: builder.mutation<any, any>({
-        query: ({ data, tasksId }) => ({
-          url: `/app/task/edit/${tasksId}`,
-          method: "POST",
-          body: data,
-        }),
+        query: ({ data, id }) => {
+          return {
+            url: `/app/task/edit/${id}`,
+            method: "POST",
+            body: data,
+          };
+        },
         invalidatesTags: ["taskes"],
       }),
       getMyTaskDetails: builder.query<any, any>({
@@ -46,13 +54,13 @@ const BrandTakesSlieces = api.injectEndpoints({
         }),
         providesTags: ["taskes"],
       }),
-      getCompleteTaskes: builder.query<any, any>({
+      getCompleteTask: builder.query<any, any>({
         query: () => ({
           url: "/app/order/complete",
         }),
         providesTags: ["taskes"],
       }),
-      ongoingTaskes: builder.query<any, any>({
+      ongoingTasks: builder.query<any, any>({
         query: () => ({
           url: "/app/order/ongoing",
         }),
@@ -71,6 +79,7 @@ export const {
   useLazyGetMyTaskDetailsQuery,
   useGetBrandHomePageQuery,
   useGetOrderDetailsQuery,
-  useGetCompleteTaskesQuery,
-  useOngoingTaskesQuery,
+  useGetCompleteTaskQuery,
+  useLazyGetCompleteTaskQuery,
+  useOngoingTasksQuery,
 } = BrandTakesSlieces;
