@@ -83,6 +83,7 @@ const Dashboard = () => {
           onPress={() => {
             router.push("/taskCreator/creatorHomTabs/profile");
           }}
+          notificationPress={() => router.push("/notification")}
           name={profileData?.data?.user?.name}
           image={profileData?.data?.user?.avatar}
         />

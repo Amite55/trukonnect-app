@@ -1,6 +1,5 @@
 import {
   IconAccountSwitch,
-  IconCreator,
   IconKey,
   IconLeaderboard,
   IconLogout,
@@ -18,6 +17,7 @@ import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
 import { useSingUpMutation } from "@/src/redux/api/authSlices";
+import { useSwitchRoleMutation } from "@/src/redux/api/profileSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -28,13 +28,21 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 const Profile = () => {
   const accountSwitchBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { data: profileData } = useProfile();
   // ============== api end point ==============
   const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();
+  const [roleSwitch, { isLoading: isRoleSwitchLoading }] =
+    useSwitchRoleMutation();
 
   const handleAccountSwitchModalOpen = useCallback(async () => {
     accountSwitchBottomSheetModalRef.current?.present();
@@ -57,6 +65,25 @@ const Profile = () => {
       router.push({
         pathname: `/Toaster`,
         params: { res: error?.message || "Logout failed" },
+      });
+    }
+  };
+
+  // ========================= handle role change =========================
+  const handleRoleChange = async () => {
+    try {
+      const res = await roleSwitch({}).unwrap();
+      if (res) {
+        await AsyncStorage.setItem("role", "performer");
+        await AsyncStorage.setItem("token", res?.data?.token);
+        router.replace("/taskPerformerSection/homeTabs/home");
+        handleAccountSwitchModalClose();
+      }
+    } catch (error: any) {
+      console.log(error, "Role Change not success, --------------->");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Something went wrong" },
       });
     }
   };
@@ -190,33 +217,35 @@ const Profile = () => {
                 </Text>
 
                 <View style={tw`gap-3 py-4`}>
-                  <TouchableOpacity
-                    activeOpacity={0.6}
-                    delayPressIn={0}
-                    delayPressOut={0}
-                    onPress={() =>
-                      router.replace("/taskPerformerSection/homeTabs/home")
-                    }
-                    style={[
-                      tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
-                    ]}
-                  >
-                    <View style={tw`gap-1`}>
-                      <Text
-                        style={tw`font-HalyardDisplaySemiBold text-lg text-white500`}
-                      >
-                        Task Performer Mode
-                      </Text>
-                      <Text
-                        style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
-                      >
-                        Complete tasks & earn money.
-                      </Text>
-                    </View>
-                    <SvgXml xml={IconTaskPerformer} />
-                  </TouchableOpacity>
+                  {isRoleSwitchLoading ? (
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  ) : (
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      delayPressIn={0}
+                      delayPressOut={0}
+                      onPress={() => handleRoleChange()}
+                      style={[
+                        tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
+                      ]}
+                    >
+                      <View style={tw`gap-1`}>
+                        <Text
+                          style={tw`font-HalyardDisplaySemiBold text-lg text-white500`}
+                        >
+                          Task Performer Mode
+                        </Text>
+                        <Text
+                          style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
+                        >
+                          Complete tasks & earn money.
+                        </Text>
+                      </View>
+                      <SvgXml xml={IconTaskPerformer} />
+                    </TouchableOpacity>
+                  )}
 
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     activeOpacity={0.6}
                     delayPressIn={0}
                     delayPressOut={0}
@@ -240,7 +269,7 @@ const Profile = () => {
                       </Text>
                     </View>
                     <SvgXml xml={IconCreator} />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                 </View>
               </View>
 

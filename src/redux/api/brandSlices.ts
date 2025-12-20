@@ -3,12 +3,31 @@ import { api } from "../BaseApi";
 const BrandTakesSlieces = api.injectEndpoints({
   endpoints: (builder) => {
     return {
-      createTasks: builder.mutation<any, any>({
-        query: (data) => ({
-          url: "/app/task/create",
-          method: "POST",
-          body: data,
+      getEngagementType: builder.query<any, any>({
+        query: (id) => {
+          return {
+            url: `/app/task/engagement/type?sm_id=${id}`,
+            method: "GET",
+          };
+        },
+        providesTags: ["taskes"],
+      }),
+      getSocialMediaList: builder.query<any, any>({
+        query: () => ({
+          url: "/app/task/social/media",
+          method: "GET",
         }),
+        providesTags: ["taskes"],
+      }),
+      createTasks: builder.mutation<any, any>({
+        query: (data) => {
+          console.log(data, "hare is api end point ");
+          return {
+            url: "/app/task/create",
+            method: "POST",
+            body: data,
+          };
+        },
         invalidatesTags: ["taskes"],
       }),
       getMyTasks: builder.query<any, any>({
@@ -66,11 +85,20 @@ const BrandTakesSlieces = api.injectEndpoints({
         }),
         providesTags: ["taskes"],
       }),
+      getUsersPaid: builder.query<any, any>({
+        query: () => ({
+          url: "/app/task/who/got/paid",
+        }),
+        providesTags: ["taskes"],
+      }),
     };
   },
 });
 
 export const {
+  useGetEngagementTypeQuery,
+  useLazyGetEngagementTypeQuery,
+  useGetSocialMediaListQuery,
   useCreateTasksMutation,
   useGetMyTasksQuery,
   useEditTasksMutation,
@@ -82,4 +110,6 @@ export const {
   useGetCompleteTaskQuery,
   useLazyGetCompleteTaskQuery,
   useOngoingTasksQuery,
+  useGetUsersPaidQuery,
+  useLazyGetUsersPaidQuery,
 } = BrandTakesSlieces;

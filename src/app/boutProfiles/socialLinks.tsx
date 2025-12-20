@@ -119,13 +119,10 @@ const SocialLinks = () => {
           type: imageResult?.mimeType,
         } as any);
 
-        // console.log(formdata?._parts[3], "this is form data ----------->");
-
         const res = await verifySocialAccount({
           id: id,
           form: formdata,
         }).unwrap();
-        console.log(res, "this is verify request submitted ");
         if (res) {
           router.push({
             pathname: `/Toaster`,

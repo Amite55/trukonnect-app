@@ -8,17 +8,16 @@ import {
   IconReferral,
   IconSocialIcon,
   IconSupport,
-  IconTaskPerformer,
   IconTermsAndConditions,
 } from "@/assets/icons";
 import MenuCard from "@/src/Components/MenuCard";
-import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import { useProfile } from "@/src/hooks/useProfile";
 import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
 import { useSingUpMutation } from "@/src/redux/api/authSlices";
+import { useSwitchRoleMutation } from "@/src/redux/api/profileSlices";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -38,6 +37,8 @@ const ProfileMenu = () => {
 
   // ============== api end point ==============
   const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();
+  const [roleSwitch, { isLoading: isRoleSwitchLoading }] =
+    useSwitchRoleMutation();
 
   const handleAccountSwitchModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -60,6 +61,25 @@ const ProfileMenu = () => {
       router.push({
         pathname: `/Toaster`,
         params: { res: error?.message || "Logout failed" },
+      });
+    }
+  };
+
+  // ========================= handle role change =========================
+  const handleRoleChange = async () => {
+    try {
+      const res = await roleSwitch({}).unwrap();
+      if (res) {
+        await AsyncStorage.setItem("role", "brand");
+        await AsyncStorage.setItem("token", res?.data?.token);
+        router.replace("/taskCreator/creatorHomTabs/dashboard");
+        handleAccountSwitchModalClose();
+      }
+    } catch (error: any) {
+      console.log(error, "Role Change not success, --------------->");
+      router.push({
+        pathname: `/Toaster`,
+        params: { res: error?.message || "Something went wrong" },
       });
     }
   };
@@ -199,35 +219,7 @@ const ProfileMenu = () => {
                     activeOpacity={0.6}
                     delayPressIn={0}
                     delayPressOut={0}
-                    onPress={() =>
-                      router.push("/taskPerformerSection/homeTabs/home")
-                    }
-                    style={[
-                      tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
-                    ]}
-                  >
-                    <View style={tw`gap-1`}>
-                      <Text
-                        style={tw`font-HalyardDisplaySemiBold text-lg text-white500`}
-                      >
-                        Task Performer Mode
-                      </Text>
-                      <Text
-                        style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
-                      >
-                        Complete tasks & earn money.
-                      </Text>
-                    </View>
-                    <SvgXml xml={IconTaskPerformer} />
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    activeOpacity={0.6}
-                    delayPressIn={0}
-                    delayPressOut={0}
-                    onPress={() =>
-                      router.replace("/taskCreator/creatorHomTabs/dashboard")
-                    }
+                    onPress={() => handleRoleChange()}
                     style={[
                       tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
                     ]}
@@ -247,14 +239,6 @@ const ProfileMenu = () => {
                     <SvgXml xml={IconCreator} />
                   </TouchableOpacity>
                 </View>
-              </View>
-
-              <View style={tw`gap-3`}>
-                <PrimaryButton
-                  onPress={() => handleAccountSwitchModalClose()}
-                  buttonContainerStyle={tw`mb-1`}
-                  buttonText="Switch"
-                />
               </View>
             </View>
           </BottomSheetScrollView>

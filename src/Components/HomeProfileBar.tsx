@@ -1,6 +1,5 @@
 import { IconHi, IconNotification } from "@/assets/icons";
 import { Image } from "expo-image";
-import { router } from "expo-router";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SvgXml } from "react-native-svg";
@@ -11,9 +10,15 @@ interface IProps {
   onPress: () => void;
   name?: any;
   image?: string;
+  notificationPress?: () => void;
 }
 
-const HomeProfileBar = ({ onPress, name, image }: IProps) => {
+const HomeProfileBar = ({
+  onPress,
+  name,
+  image,
+  notificationPress,
+}: IProps) => {
   return (
     <View style={tw`flex-row justify-between items-center mt-6 mb-4`}>
       <View>
@@ -31,14 +36,10 @@ const HomeProfileBar = ({ onPress, name, image }: IProps) => {
       <View
         style={tw`flex-row bg-transparentBG  h-14 gap-3 w-28 rounded-full justify-center items-center`}
       >
-        <TouchableOpacity
-          onPress={() => {
-            router.push("/notification");
-          }}
-        >
+        <TouchableOpacity activeOpacity={0.7} onPress={notificationPress}>
           <SvgXml xml={IconNotification} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
           <Image
             contentFit="cover"
             style={tw`w-10 h-10 rounded-full`}

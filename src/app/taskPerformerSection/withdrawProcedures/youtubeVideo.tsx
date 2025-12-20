@@ -11,8 +11,8 @@ import {
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
-import React, { useEffect, useRef } from "react";
-import { ActivityIndicator, Modal, ScrollView, Text, View } from "react-native";
+import React, { useRef } from "react";
+import { Modal, ScrollView, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const YoutubeVideo = () => {
@@ -20,9 +20,6 @@ const YoutubeVideo = () => {
   const [showModal, setShowModal] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(0);
   const [hasWatched30Seconds, setHasWatched30Seconds] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const intervalRef = useRef(null);
   const playerRef = useRef(null);
 
   // =================== api end point =====================
@@ -30,122 +27,15 @@ const YoutubeVideo = () => {
   const { data: promoData, isLoading: isPromoLoading } =
     useGetAllPromoLinksQuery({});
 
+  const videoSource =
+    "https://www.youtube.com/watch?v=WNeLUngb-Xg&list=RDI84mK6_iBVY&index=25";
+
   // ===========`========== video player handel ===========
-  const player = useVideoPlayer(
-    process.env.EXPO_PUBLIC_VIDEO_URL + "/" + promoData?.data[0]?.link,
-    (player) => {
-      player.loop = false;
-      player.play();
-      // ============== set custom loading to video player =================
-      player.addListener("playingChange", (isPlaying) => {
-        setIsPlaying(isPlaying);
-        if (isPlaying) {
-          setIsLoading(false);
-          // Start tracking time when video starts playing
-          startTimeTracking();
-        } else {
-          // Pause tracking when video is paused
-          stopTimeTracking();
-        }
-      });
-      // ====================== after the loading and set play video =================
-      player.addListener("statusChange", (status) => {
-        if (status === "readyToPlay") {
-          setIsLoading(false);
-          player.play();
-        }
-      });
-
-      // Handle video end ============>
-      player.addListener("playToEnd", () => {
-        stopTimeTracking();
-        // If video ends, activate button
-        setHasWatched30Seconds(true);
-      });
-
-      player.addListener("progressUpdate", (progress) => {
-        console.log(
-          progress,
-          progress,
-          " player progress update state--------------->"
-        );
-        const timeInSeconds = progress.positionMillis / 1000;
-        setCurrentTime(timeInSeconds);
-        // Check if 30 seconds have been watched
-        if (timeInSeconds >= 30 && !hasWatched30Seconds) {
-          setHasWatched30Seconds(true);
-          console.log("30 seconds watched!");
-          // You can trigger your button activation here
-        }
-      });
-    }
-  );
-
-  // Time tracking function
-  const startTimeTracking = () => {
-    console.log("Starting time tracking");
-    stopTimeTracking(); // Clear any existing interval
-
-    intervalRef.current = setInterval(() => {
-      setCurrentTime((prev) => {
-        const newTime = prev + 1;
-        console.log(`Time: ${newTime}s`);
-
-        // Check if 30 seconds reached
-        if (newTime >= 30 && !hasWatched30Seconds) {
-          console.log("✅ 30 seconds watched!");
-          setHasWatched30Seconds(true);
-          // Optional: stop tracking after 30s
-          stopTimeTracking();
-        }
-
-        return newTime;
-      });
-    }, 1000); // Update every second
-  };
-
-  const stopTimeTracking = () => {
-    if (intervalRef.current) {
-      console.log("Stopping time tracking");
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
-  useEffect(() => {
-    if (player && promoData) {
-      setIsLoading(true);
-      // Reset tracking when video changes
-      setHasWatched30Seconds(false);
-      setCurrentTime(0);
-      stopTimeTracking();
-    }
-
-    // Cleanup on unmount
-    return () => {
-      stopTimeTracking();
-    };
-  }, [promoData]);
-
-  // Reset when video URL changes
-  useEffect(() => {
-    if (promoData?.data[0]?.link) {
-      console.log("Video URL changed, resetting timer");
-      setCurrentTime(0);
-      setHasWatched30Seconds(false);
-      setIsLoading(true);
-      stopTimeTracking();
-    }
-  }, [promoData?.data[0]?.link]);
-
-  useEffect(() => {
-    if (player && promoData) {
-      setIsLoading(true);
-      // Reset tracking when video changes
-      setHasWatched30Seconds(false);
-      setCurrentTime(0);
-    }
-  }, [promoData]);
+  const player = useVideoPlayer(videoSource || "", (player) => {
+    // player.loop = true;
+    player.play();
+    // playerRef.current = player;
+  });
 
   // ============= token convert handel =========
   const handleConvert = async () => {
@@ -178,26 +68,13 @@ const YoutubeVideo = () => {
         />
         {/* --------------------- ads videos ---------------- */}
         <View style={tw`justify-center items-center w-full py-8`}>
-          {isPromoLoading || isLoading ? (
-            <ActivityIndicator size="small" color="#ffffff" />
-          ) : (
-            <VideoView
-              style={tw`w-[80%] h-40 justify-center items-center`}
-              player={player}
-              allowsFullscreen
-              contentFit="contain"
-              ref={playerRef}
-            />
-          )}
-
-          {!isLoading && (
-            <View style={tw`mt-2 w-[80%]`}>
-              <Text style={tw`text-white text-xs text-center`}>
-                Watched: {Math.min(currentTime, 30)}s / 30s
-                {hasWatched30Seconds ? " ✅ Ready!" : ""}
-              </Text>
-            </View>
-          )}
+          <VideoView
+            style={tw`w-[80%] h-40 justify-center items-center`}
+            player={player}
+            allowsFullscreen
+            contentFit="contain"
+            ref={playerRef}
+          />
         </View>
 
         <Text style={tw`font-HalyardDisplayRegular text-base text-white500`}>

@@ -68,6 +68,7 @@ const Home = () => {
         {/* ---------------- header profile section ----------------- */}
         <HomeProfileBar
           onPress={() => router.push("/boutProfiles/profileMenus")}
+          notificationPress={() => router.push("/notification")}
           name={profileData?.data?.user?.name}
           image={profileData?.data?.user?.avatar}
         />

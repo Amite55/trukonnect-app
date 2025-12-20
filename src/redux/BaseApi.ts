@@ -81,6 +81,7 @@ export const api = createApi({
     "profile",
     "ticket",
     "payment",
+    "notification",
   ],
 });
 // export const imageUrl = "http://10.10.10.90:8001/storage";

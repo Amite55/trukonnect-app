@@ -4,7 +4,7 @@ import { SvgXml } from "react-native-svg";
 import tw from "../lib/tailwind";
 
 interface Props {
-  onPress: () => void;
+  onPress?: () => void;
   icon: any;
   title: string;
   counter?: number;
@@ -24,7 +24,7 @@ const CreatorCounterCard = ({
       delayPressIn={0}
       delayPressOut={0}
       disabled={disabled}
-      onPress={onPress}
+      onPress={disabled ? () => {} : onPress}
       style={tw`flex-1 h-36  items-center border border-borderColor bg-transparentBG px-4 py-6 rounded-3xl  gap-2`}
     >
       <SvgXml xml={icon || ""} />
