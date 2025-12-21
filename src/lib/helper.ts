@@ -70,7 +70,6 @@ export class helpers {
       minute: 60,
       second: 1,
     };
-
     for (const key in intervals) {
       const interval = Math.floor(seconds / intervals[key]);
       if (interval > 0) {
@@ -80,4 +79,13 @@ export class helpers {
 
     return "Just now";
   }
+
+  // ======================== youtube video link v id ========================
+  static getVideoId = (url?: string | null): string | null => {
+    if (!url || typeof url !== "string") return null;
+    const regExp =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  };
 }

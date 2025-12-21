@@ -3,6 +3,8 @@ import { ImgSuccessGIF } from "@/assets/image";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
 import BackTitleButton from "@/src/lib/BackTitleButton";
+import { helpers } from "@/src/lib/helper";
+import YoutubePlayerSkeleton from "@/src/lib/Skeleton/YoutubeVideoSkeleton";
 import tw from "@/src/lib/tailwind";
 import {
   useGetAllPromoLinksQuery,
@@ -10,32 +12,48 @@ import {
 } from "@/src/redux/api/withdrawalSlices";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { useVideoPlayer, VideoView } from "expo-video";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 import { SvgXml } from "react-native-svg";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const YoutubeVideo = () => {
   const { convertToken } = useLocalSearchParams();
   const [showModal, setShowModal] = React.useState(false);
-  const [currentTime, setCurrentTime] = React.useState(0);
   const [hasWatched30Seconds, setHasWatched30Seconds] = React.useState(false);
-  const playerRef = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  const playerRef = useRef<any>(null);
+  const watchTimer = useRef<any>(null);
 
   // =================== api end point =====================
   const [tokenConvert, { isLoading: isConverting }] = useTokenConvertMutation();
   const { data: promoData, isLoading: isPromoLoading } =
     useGetAllPromoLinksQuery({});
 
-  const videoSource =
-    "https://www.youtube.com/watch?v=WNeLUngb-Xg&list=RDI84mK6_iBVY&index=25";
+  const youtubeLink = promoData?.data[0]?.link;
 
-  // ===========`========== video player handel ===========
-  const player = useVideoPlayer(videoSource || "", (player) => {
-    // player.loop = true;
-    player.play();
-    // playerRef.current = player;
-  });
+  // =================== fast render to auto play video =====================
+  const handleReady = () => {
+    // ensure play state stays true after load
+    setPlaying(true);
+  };
+
+  const handleStateChange = (state: string) => {
+    if (state === "playing") {
+      if (!watchTimer.current) {
+        watchTimer.current = setTimeout(() => {
+          setHasWatched30Seconds(true);
+        }, 30000);
+      }
+    }
+
+    if (state === "paused" || state === "buffering" || state === "ended") {
+      if (watchTimer.current) {
+        clearTimeout(watchTimer.current);
+        watchTimer.current = null;
+      }
+    }
+  };
 
   // ============= token convert handel =========
   const handleConvert = async () => {
@@ -68,13 +86,26 @@ const YoutubeVideo = () => {
         />
         {/* --------------------- ads videos ---------------- */}
         <View style={tw`justify-center items-center w-full py-8`}>
-          <VideoView
-            style={tw`w-[80%] h-40 justify-center items-center`}
-            player={player}
-            allowsFullscreen
-            contentFit="contain"
-            ref={playerRef}
-          />
+          {isPromoLoading ? (
+            <YoutubePlayerSkeleton />
+          ) : (
+            <YoutubePlayer
+              ref={playerRef}
+              height={200}
+              width="100%"
+              play={playing}
+              videoId={helpers.getVideoId(youtubeLink) || youtubeLink}
+              onReady={handleReady}
+              onChangeState={handleStateChange}
+              initialPlayerParams={{
+                controls: false,
+                modestbranding: true,
+                rel: false,
+                playsinline: true,
+                mute: true,
+              }}
+            />
+          )}
         </View>
 
         <Text style={tw`font-HalyardDisplayRegular text-base text-white500`}>

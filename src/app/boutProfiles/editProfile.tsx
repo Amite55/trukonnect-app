@@ -6,6 +6,7 @@ import BackTitleButton from "@/src/lib/BackTitleButton";
 import { helpers } from "@/src/lib/helper";
 import tw from "@/src/lib/tailwind";
 import {
+  useDeleteProfileMutation,
   useEditProfileMutation,
   useUpdateProfileImageMutation,
 } from "@/src/redux/api/profileSlices";
@@ -41,6 +42,8 @@ const EditProfile = () => {
     useEditProfileMutation();
   const [updateProfileImage, { isLoading: isUpdateProfileImageLoading }] =
     useUpdateProfileImageMutation();
+  const [deleteProfile, { isLoading: isDeleteProfileLoading }] =
+    useDeleteProfileMutation();
 
   const handleEditModalOpen = useCallback(async () => {
     editBottomSheetModalRef.current?.present();
@@ -205,6 +208,7 @@ const EditProfile = () => {
 
         <View>
           <PrimaryButton
+            loading={isDeleteProfileLoading}
             onPress={() => setModalVisible(true)}
             buttonText="Delete your account"
             buttonTextStyle={tw`text-red-600`}
@@ -321,8 +325,23 @@ const EditProfile = () => {
                 buttonTextStyle={tw`text-red-600`}
                 buttonContainerStyle={tw`flex-1 my-2 bg-red-950`}
                 buttonText="Delete"
-                onPress={() => {
-                  setModalVisible(false);
+                onPress={async () => {
+                  try {
+                    const res = await deleteProfile({}).unwrap();
+                    if (res) {
+                      setModalVisible(false);
+                      router.replace("/roleScreen");
+                    }
+                  } catch (error: any) {
+                    setModalVisible(false);
+                    console.log(error, "Your account not deleted");
+                    router.push({
+                      pathname: `/Toaster`,
+                      params: {
+                        res: error?.message || "Your account not deleted",
+                      },
+                    });
+                  }
                 }}
               />
             </View>

@@ -9,6 +9,7 @@ import {
   useGetSocialMediaListQuery,
   useLazyGetEngagementTypeQuery,
 } from "@/src/redux/api/brandSlices";
+import { useBrandPaymentMutation } from "@/src/redux/api/paymentSlices";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useEffect } from "react";
@@ -56,6 +57,9 @@ const BuyTasks = () => {
   ] = useLazyGetEngagementTypeQuery();
   const [createTask, { isLoading: isCreateTaskLoading }] =
     useCreateTasksMutation();
+  // =========== payment api end point ===========
+  const [brandPayment, { isLoading: isBrandPaymentLoading }] =
+    useBrandPaymentMutation();
 
   // ============== create task handler ==================
   const handleCreateTask = async () => {
@@ -69,10 +73,19 @@ const BuyTasks = () => {
       };
       const res = await createTask(payload).unwrap();
       if (res) {
-        router.push({
-          pathname: `/Toaster`,
-          params: { res: res?.message || "Task created successfully" },
-        });
+        const response = await brandPayment({
+          network_code: "CRD",
+          task_id: res?.data?.id,
+        }).unwrap();
+        if (response) {
+          router.push({
+            pathname:
+              "/taskPerformerSection/withdrawProcedures/withdrawProcedure",
+            params: {
+              webUrl: response?.data?.response?.redirect_url,
+            },
+          });
+        }
       }
     } catch (error: any) {
       console.log(error, "Not created your task please try again");
@@ -327,7 +340,7 @@ const BuyTasks = () => {
             </View>
 
             <PrimaryButton
-              loading={isCreateTaskLoading}
+              loading={isCreateTaskLoading || isBrandPaymentLoading}
               buttonText="Make Payment"
               buttonContainerStyle={tw`mb-2`}
               onPress={

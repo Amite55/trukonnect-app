@@ -170,13 +170,13 @@ const Task = () => {
   return (
     <ViewProvider containerStyle={tw`flex-1 bg-bgBaseColor px-4 pt-8`}>
       <View style={tw`flex-1`}>
-        <View style={tw`flex-row justify-between items-center mb-4`}>
-          <Text style={tw`font-GucinaBold text-2xl text-white500`}>
+        <View style={tw`flex-row justify-between items-start mb-2 `}>
+          <Text style={tw`font-GucinaBold text-2xl text-white500 `}>
             Ongoing Task
           </Text>
           <PrimaryButton
             buttonText="History"
-            buttonContainerStyle={tw`w-20 h-10`}
+            buttonContainerStyle={tw`w-20 h-10 `}
             buttonTextStyle={tw`text-base`}
             onPress={() =>
               router.push("/taskPerformerSection/task/taskHistory")

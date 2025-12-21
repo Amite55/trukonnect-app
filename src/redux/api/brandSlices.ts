@@ -21,7 +21,6 @@ const BrandTakesSlieces = api.injectEndpoints({
       }),
       createTasks: builder.mutation<any, any>({
         query: (data) => {
-          console.log(data, "hare is api end point ");
           return {
             url: "/app/task/create",
             method: "POST",

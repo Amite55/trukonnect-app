@@ -1,6 +1,7 @@
 import { IconCurrency, IconPoint, IconWarring } from "@/assets/icons";
 import PrimaryButton from "@/src/Components/PrimaryButton";
 import ViewProvider from "@/src/Components/ViewProvider";
+import { useProfile } from "@/src/hooks/useProfile";
 import tw from "@/src/lib/tailwind";
 import { useGetWalletInfoQuery } from "@/src/redux/api/withdrawalSlices";
 import {
@@ -28,6 +29,11 @@ const Wallet = () => {
   const [inputValue, setInputValue] = React.useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
+  const profileData = useProfile();
+  console.log(
+    profileData?.data?.data?.user?.withdrawal_status,
+    "this is profile data ------------>"
+  );
 
   // ==================== api end point ====================
   const { data: walletData } = useGetWalletInfoQuery({});
@@ -159,7 +165,7 @@ const Wallet = () => {
                 placeholder="Enter the amount for Withdrawal"
                 placeholderTextColor="#A4A4A4"
                 style={tw`w-full text-white500`}
-                onChangeText={(value) => setCurrencyValue(value)}
+                onChangeText={(value) => setCurrencyValue(value as any)}
                 keyboardType="numeric"
               />
             </View>
@@ -190,12 +196,22 @@ const Wallet = () => {
               <PrimaryButton
                 buttonText="Next"
                 buttonContainerStyle={tw`mt-6 mb-1`}
-                onPress={() =>
-                  router.push(
-                    // "/taskPerformerSection/withdrawProcedures/withdrawProcedure"
-                    "/taskPerformerSection/withdrawProcedures/purchaseTask"
-                  )
-                }
+                onPress={() => {
+                  if (
+                    profileData?.data?.data?.user?.withdrawal_status === "0"
+                  ) {
+                    router.push(
+                      "/taskPerformerSection/withdrawProcedures/purchaseTask"
+                    );
+                  } else {
+                    router.push({
+                      pathname: "/Toaster",
+                      params: {
+                        res: "this task prepaid for payment ",
+                      },
+                    });
+                  }
+                }}
               />
             ) : (
               <PrimaryButton

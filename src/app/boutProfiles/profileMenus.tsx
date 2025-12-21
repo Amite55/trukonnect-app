@@ -28,7 +28,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SvgXml } from "react-native-svg";
 
 const ProfileMenu = () => {
@@ -215,29 +221,33 @@ const ProfileMenu = () => {
                 </Text>
 
                 <View style={tw`gap-3 py-4`}>
-                  <TouchableOpacity
-                    activeOpacity={0.6}
-                    delayPressIn={0}
-                    delayPressOut={0}
-                    onPress={() => handleRoleChange()}
-                    style={[
-                      tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
-                    ]}
-                  >
-                    <View style={tw`gap-1`}>
-                      <Text
-                        style={tw`font-HalyardDisplaySemiBold text-lg text-white500`}
-                      >
-                        Brand Mode
-                      </Text>
-                      <Text
-                        style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
-                      >
-                        Post tasks, set budget & view analytics.
-                      </Text>
-                    </View>
-                    <SvgXml xml={IconCreator} />
-                  </TouchableOpacity>
+                  {isRoleSwitchLoading ? (
+                    <ActivityIndicator size="large" color="#ffffff" />
+                  ) : (
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      delayPressIn={0}
+                      delayPressOut={0}
+                      onPress={() => handleRoleChange()}
+                      style={[
+                        tw`flex-row items-center justify-between p-4 border border-borderColor rounded-2xl shadow-md`,
+                      ]}
+                    >
+                      <View style={tw`gap-1`}>
+                        <Text
+                          style={tw`font-HalyardDisplaySemiBold text-lg text-white500`}
+                        >
+                          Brand Mode
+                        </Text>
+                        <Text
+                          style={tw`font-HalyardDisplayRegular text-sm text-subtitle`}
+                        >
+                          Post tasks, set budget & view analytics.
+                        </Text>
+                      </View>
+                      <SvgXml xml={IconCreator} />
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             </View>
