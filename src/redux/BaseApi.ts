@@ -78,6 +78,7 @@ export const api = createApi({
     "forgetPassword",
     "taskes",
     "wallet",
+    "Profile",
     "profile",
     "ticket",
     "payment",

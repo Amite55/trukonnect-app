@@ -58,7 +58,8 @@ const Profile = () => {
       if (res) {
         await AsyncStorage.removeItem("token");
         await AsyncStorage.removeItem("role");
-        router.replace("/onboardingScreen");
+        router.dismissAll();
+        router.replace("/auth/roleScreen");
       }
     } catch (error: any) {
       console.log("Error in sing out:", error);

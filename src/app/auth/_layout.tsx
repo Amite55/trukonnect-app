@@ -10,6 +10,7 @@ const AuthLayout = () => {
       <Stack.Screen name="createNewPass" />
       <Stack.Screen name="verifyNumber" />
       <Stack.Screen name="verifyOTPScreen" />
+      <Stack.Screen name="roleScreen" />
     </Stack>
   );
 };

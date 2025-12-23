@@ -120,7 +120,7 @@ const Task = () => {
             <Text
               style={tw`font-HalyardDisplaySemiBold text-base text-white500`}
             >
-              500
+              {item?.task?.per_perform}
             </Text>
           </View>
           <Image

@@ -1,13 +1,13 @@
 import { IconCreator, IconTaskPerformer } from "@/assets/icons";
 import { ImgLogo } from "@/assets/image";
+import RoleCard from "@/src/Components/RoleCard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
-import RoleCard from "../Components/RoleCard";
-import ViewProvider from "../Components/ViewProvider";
-import tw from "../lib/tailwind";
+import ViewProvider from "../../Components/ViewProvider";
+import tw from "../../lib/tailwind";
 
 const RoleScreen = () => {
   return (

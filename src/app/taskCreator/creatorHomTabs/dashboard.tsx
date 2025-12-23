@@ -1,7 +1,6 @@
 import {
   IconCalendar,
   IconCompleteTask,
-  IconCurrencyPrimaryColor,
   IconHelpAndSupport,
   IconOngoing,
   IconPoint,
@@ -314,8 +313,12 @@ const Dashboard = () => {
                     >
                       Total Cost
                     </Text>
-                    <View style={tw`flex-row items-center gap-2`}>
-                      <SvgXml xml={IconCurrencyPrimaryColor} />
+                    <View style={tw`flex-row items-center gap-1`}>
+                      <Text
+                        style={tw`font-HalyardDisplaySemiBold text-sm text-white500`}
+                      >
+                        {recentTaskDetails?.data?.country?.currency_code}
+                      </Text>
                       <Text
                         style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
                       >

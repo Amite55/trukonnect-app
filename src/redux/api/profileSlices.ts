@@ -7,7 +7,7 @@ const profileSlices = api.injectEndpoints({
         url: "app/my/profile",
         method: "GET",
       }),
-      providesTags: ["profile"],
+      providesTags: ["Profile"],
     }),
     editProfile: builder.mutation<any, any>({
       query: (data) => ({
@@ -15,20 +15,20 @@ const profileSlices = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["profile"],
+      invalidatesTags: ["Profile"],
     }),
     switchRole: builder.mutation<any, any>({
       query: () => ({
         url: "/app/switchRole",
         method: "POST",
       }),
-      invalidatesTags: ["profile"],
+      invalidatesTags: ["Profile"],
     }),
     getAllSocial: builder.query<any, any>({
       query: () => ({
         url: "/app/allsocial",
       }),
-      providesTags: ["profile"],
+      providesTags: ["Profile"],
     }),
     socialVerification: builder.mutation<any, any>({
       query: ({ id, form }) => {
@@ -62,14 +62,14 @@ const profileSlices = api.injectEndpoints({
         url: "/app/delete-profile",
         method: "DELETE",
       }),
-      invalidatesTags: ["profile"],
+      invalidatesTags: ["Profile"],
     }),
     deletedSocialAccount: builder.mutation<any, any>({
       query: (id) => ({
         url: `/app/delete/social/account/${id}`,
         method: "POST",
       }),
-      invalidatesTags: ["profile"],
+      invalidatesTags: ["Profile"],
     }),
   }),
 });

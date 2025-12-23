@@ -25,11 +25,12 @@ import {
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image } from "expo-image";
+// import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useRef } from "react";
 import {
   ActivityIndicator,
+  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -40,6 +41,7 @@ import { SvgXml } from "react-native-svg";
 const ProfileMenu = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { data: profileData } = useProfile();
+  console.log(profileData?.data, "this is profile data ________________.>");
 
   // ============== api end point ==============
   const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();
@@ -60,7 +62,8 @@ const ProfileMenu = () => {
       if (res) {
         await AsyncStorage.removeItem("token");
         await AsyncStorage.removeItem("role");
-        router.replace("/onboardingScreen");
+        router.dismissAll();
+        router.replace("/auth/roleScreen");
       }
     } catch (error: any) {
       console.log("Error in sing out:", error);
@@ -104,10 +107,11 @@ const ProfileMenu = () => {
         >
           <Image
             style={tw`w-14 h-14 rounded-full `}
-            source={helpers.getImgFullUrl(
-              profileData?.data?.user?.avatar || ""
-            )}
-            contentFit="cover"
+            source={{
+              uri: helpers.getImgFullUrl(profileData?.data?.user?.avatar || ""),
+            }}
+            resizeMode="cover"
+            resizeMethod="resize"
           />
           <View style={tw`gap-2`}>
             <Text style={tw`font-HalyardDisplayMedium text-xl text-white500`}>

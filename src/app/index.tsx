@@ -123,7 +123,9 @@ export default function Index() {
           >
             True Fans, real rewards
           </Text>
-          {isLoading && (
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#FFFFFF" style={tw`mt-2`} />
+          ) : (
             <ActivityIndicator size="small" color="#FFFFFF" style={tw`mt-2`} />
           )}
         </Animated.View>

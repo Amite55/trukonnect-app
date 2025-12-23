@@ -330,7 +330,7 @@ const EditProfile = () => {
                     const res = await deleteProfile({}).unwrap();
                     if (res) {
                       setModalVisible(false);
-                      router.replace("/roleScreen");
+                      router.replace("/auth/roleScreen");
                     }
                   } catch (error: any) {
                     setModalVisible(false);

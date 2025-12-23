@@ -18,14 +18,14 @@ const OnboardingScreen = () => {
 
   //  handle fast onboarding ---------------
   const handleDone = () => {
-    router.replace("/roleScreen");
+    router.replace("/auth/roleScreen");
   };
 
   const handleCompleteButton = () => {
     return (
       <TouchableOpacity
         onPress={() => {
-          router.replace("/roleScreen");
+          router.replace("/auth/roleScreen");
         }}
         style={tw`mr-4 w-14 h-12 items-center justify-center rounded-full bg-primaryBtn`}
       >

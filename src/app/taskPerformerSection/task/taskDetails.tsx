@@ -56,7 +56,6 @@ const TaskDetails = () => {
     });
     return form;
   };
-
   // ================= submit task    ====================
   const handleSubmitTask = async () => {
     try {
@@ -226,7 +225,7 @@ const TaskDetails = () => {
 
           {/* Perform Task button */}
           <PrimaryButton
-            onPress={() => Linking.openURL(taskDetailsData?.data?.link)}
+            onPress={() => Linking.openURL(taskDetailsData?.data?.task?.link)}
             buttonText="Perform Task"
             buttonContainerStyle={tw`bg-secondaryBtn mt-4 mb-1`}
             buttonTextStyle={tw`text-primaryBtn`}

@@ -158,6 +158,7 @@ const LoginScreen = () => {
                 subTitle="Enter correct information to access your account"
               />
               <Formik
+                enableReinitialize={true}
                 initialValues={{ email: savedEmail, password: savedPassword }}
                 validationSchema={LoginSchema}
                 onSubmit={(values) => handleLogin(values as LoginFormValues)}

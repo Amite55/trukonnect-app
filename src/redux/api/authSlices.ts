@@ -73,7 +73,7 @@ const authSlices = api.injectEndpoints({
           method: "POST",
           body: data,
         }),
-        invalidatesTags: ["singIn"],
+        invalidatesTags: ["Profile"],
       }),
     };
   },
