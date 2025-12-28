@@ -179,7 +179,7 @@ const CompleteOrderTask = () => {
               title={
                 type === "Completed"
                   ? "Completed orders"
-                  : type === "Pending"
+                  : type === "ongoing"
                   ? "Ongoing orders"
                   : "orders"
               }
@@ -231,7 +231,7 @@ const CompleteOrderTask = () => {
                       }}
                       icon={IconMultipleUser}
                       title="Total Performers"
-                      counter={taskDetails?.data?.performers || 0}
+                      counter={taskDetails?.data?.performed || 0}
                       disabled
                     />
                     <CreatorCounterCard
@@ -335,7 +335,7 @@ const CompleteOrderTask = () => {
                         <Text
                           style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
                         >
-                          {taskDetails?.data?.total_price}
+                          {Number(taskDetails?.data?.unite_price).toFixed(2)}
                         </Text>
                       </View>
                     </View>

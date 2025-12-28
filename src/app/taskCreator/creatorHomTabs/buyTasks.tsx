@@ -168,6 +168,10 @@ const BuyTasks = () => {
               ) : (
                 socialMediaList?.data.map((item: any) => {
                   const isChecked = selectedId === item?.id;
+                  console.log(
+                    item?.icon_url,
+                    "this is image url -------------->"
+                  );
                   return (
                     <TouchableOpacity
                       activeOpacity={0.6}

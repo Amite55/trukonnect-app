@@ -55,7 +55,6 @@ const TaskHistory = () => {
 
   // ================== details task data =================
   const handleTaskDetails = async (id: any) => {
-    console.log(id);
     try {
       const response = await taskHistoryDataDetails({
         id,
@@ -70,7 +69,10 @@ const TaskHistory = () => {
       console.log(error, "details not showing --------------->");
     }
   };
-
+  console.log(
+    taskDetails?.data?.task_performer?.status,
+    "task details status ------------------>"
+  );
   const fetchData = useCallback(
     async (pageNum = 1, isRefresh = false) => {
       try {
@@ -108,6 +110,10 @@ const TaskHistory = () => {
   useEffect(() => {
     fetchData(1);
   }, [fetchData, searchValue, filteredData]);
+  // ======================= if details modal open with initial status and close this modal ===================
+  useEffect(() => {
+    handleDetailsModalClose();
+  }, []);
 
   // Handle pull to refresh
   const handleRefresh = useCallback(async () => {
@@ -492,14 +498,18 @@ const TaskHistory = () => {
                 )}
               </View>
 
-              <View style={tw`flex-row items-center gap-2`}>
-                <SvgXml xml={IconWarring} />
-                <Text
-                  style={tw`font-HalyardDisplayRegular text-base text-white500`}
-                >
-                  Waiting for confirmation by Review Team
-                </Text>
-              </View>
+              {(taskDetails?.data?.task_performer?.status === "Pending" ||
+                taskDetails?.data?.task_performer?.status ===
+                  "Admin_review") && (
+                <View style={tw`flex-row items-center gap-2`}>
+                  <SvgXml xml={IconWarring} />
+                  <Text
+                    style={tw`font-HalyardDisplayRegular text-base text-white500`}
+                  >
+                    Waiting for confirmation by Review Team
+                  </Text>
+                </View>
+              )}
 
               <PrimaryButton
                 buttonText="Close"

@@ -41,7 +41,6 @@ import { SvgXml } from "react-native-svg";
 const ProfileMenu = () => {
   const editBottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { data: profileData } = useProfile();
-  console.log(profileData?.data, "this is profile data ________________.>");
 
   // ============== api end point ==============
   const [singOut, { isLoading: isSingOutLoading }] = useSingUpMutation();

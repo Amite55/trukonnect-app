@@ -104,7 +104,7 @@ const Dashboard = () => {
               onPress={() => {
                 router.push({
                   pathname: "/taskCreator/completeOrderTask",
-                  params: { type: "Pending" },
+                  params: { type: "ongoing" },
                 });
               }}
               icon={IconOngoing}

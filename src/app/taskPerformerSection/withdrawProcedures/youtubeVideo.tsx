@@ -32,6 +32,8 @@ const YoutubeVideo = () => {
 
   const youtubeLink = promoData?.data[0]?.link;
 
+  console.log(youtubeLink, "------------------->");
+
   // =================== fast render to auto play video =====================
   const handleReady = () => {
     // ensure play state stays true after load

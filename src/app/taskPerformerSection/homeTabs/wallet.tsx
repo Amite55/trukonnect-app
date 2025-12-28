@@ -30,10 +30,6 @@ const Wallet = () => {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
   const profileData = useProfile();
-  console.log(
-    profileData?.data?.data?.user?.withdrawal_status,
-    "this is profile data ------------>"
-  );
 
   // ==================== api end point ====================
   const { data: walletData } = useGetWalletInfoQuery({});

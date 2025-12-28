@@ -194,7 +194,7 @@ const Notification = () => {
             { flexShrink: 0, marginLeft: 8 },
           ]}
         >
-          {helpers.timeAgo(item?.created_at)}
+          {helpers.timeDataAgo(item?.created_at)}
         </Text>
       </TouchableOpacity>
     );

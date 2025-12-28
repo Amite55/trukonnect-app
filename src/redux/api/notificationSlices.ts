@@ -6,7 +6,7 @@ const notificationSlices = api.injectEndpoints({
       query: () => ({
         url: "/notification/center",
       }),
-      providesTags: ["notification"],
+      providesTags: ["notification", "Profile", "singIn", "logout"],
     }),
     markAsRead: builder.mutation<any, any>({
       query: (id) => ({

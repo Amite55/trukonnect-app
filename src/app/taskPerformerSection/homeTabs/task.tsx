@@ -107,7 +107,7 @@ const Task = () => {
           <Text
             style={tw`font-HalyardDisplayRegular text-xs text-subtitle mt-1`}
           >
-            {helpers.timeAgo(item?.task?.created_at)}
+            {helpers.timeAgo(item?.task?.updated_at)}
           </Text>
         </View>
         <Text style={tw`font-HalyardDisplaySemiBold text-base text-white500`}>

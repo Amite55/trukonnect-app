@@ -76,8 +76,44 @@ export class helpers {
         return `${interval} ${key}${interval > 1 ? "s" : ""} ago`;
       }
     }
-
     return "Just now";
+  }
+
+  // [================== Time Data Ago ==================]
+  static timeDataAgo(dateStr: string): string {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    // Just now
+    if (diffSeconds < 60) {
+      return "Just now";
+    }
+    // Less than 1 hour
+    if (diffMinutes < 60) {
+      return `${diffMinutes} min${diffMinutes > 1 ? "s" : ""} ago`;
+    }
+    // Less than 1 day
+    if (diffHours < 24) {
+      return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+    }
+    // Yesterday
+    if (diffDays === 1) {
+      return "Yesterday";
+    }
+    // Less than 7 days
+    if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    }
+    // More than 7 days → show date
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   }
 
   // ======================== youtube video link v id ========================
