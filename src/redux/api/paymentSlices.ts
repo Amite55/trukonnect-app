@@ -8,20 +8,20 @@ const paymentSlices = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["payment"],
+      invalidatesTags: ["payment", "Profile"],
     }),
     getCallBack: builder.query<any, any>({
       query: (transaction_id) => ({
         url: `/app/callback/${transaction_id}`,
         method: "GET",
       }),
-      providesTags: ["payment"],
+      providesTags: ["payment", "Profile"],
     }),
     getNetwork: builder.query<any, any>({
       query: () => ({
         url: "/app/networks",
       }),
-      providesTags: ["payment"],
+      providesTags: ["payment", "Profile"],
     }),
     performerPayment: builder.mutation<any, any>({
       query: (data) => ({
@@ -29,13 +29,13 @@ const paymentSlices = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["payment"],
+      invalidatesTags: ["payment", "Profile"],
     }),
     getAvailableBank: builder.query<any, any>({
       query: () => ({
         url: "/app/available/banks",
       }),
-      providesTags: ["payment"],
+      providesTags: ["payment", "Profile"],
     }),
     customerAccountCheck: builder.mutation<any, any>({
       query: (data) => ({
@@ -43,7 +43,7 @@ const paymentSlices = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["payment"],
+      invalidatesTags: ["payment", "Profile"],
     }),
   }),
 });

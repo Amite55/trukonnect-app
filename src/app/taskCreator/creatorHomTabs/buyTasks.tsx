@@ -9,7 +9,6 @@ import {
   useGetSocialMediaListQuery,
   useLazyGetEngagementTypeQuery,
 } from "@/src/redux/api/brandSlices";
-import { useBrandPaymentMutation } from "@/src/redux/api/paymentSlices";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useEffect } from "react";
@@ -52,14 +51,10 @@ const BuyTasks = () => {
       data: engagementTypeData,
       isLoading: isLoadingEngagementType,
       isFetching,
-      error: engagementTypeError,
     },
   ] = useLazyGetEngagementTypeQuery();
-  const [createTask, { isLoading: isCreateTaskLoading }] =
+  const [createTsk, { isLoading: isCreateTaskLoading }] =
     useCreateTasksMutation();
-  // =========== payment api end point ===========
-  const [brandPayment, { isLoading: isBrandPaymentLoading }] =
-    useBrandPaymentMutation();
 
   // ============== create task handler ==================
   const handleCreateTask = async () => {
@@ -71,21 +66,15 @@ const BuyTasks = () => {
         sms_id: taskType,
         sm_id: selectedId,
       };
-      const res = await createTask(payload).unwrap();
+      const res = await createTsk(payload).unwrap();
       if (res) {
-        const response = await brandPayment({
-          network_code: "CRD",
-          task_id: res?.data?.id,
-        }).unwrap();
-        if (response) {
-          router.push({
-            pathname:
-              "/taskPerformerSection/withdrawProcedures/withdrawProcedure",
-            params: {
-              webUrl: response?.data?.response?.redirect_url,
-            },
-          });
-        }
+        const jsonTaskData = JSON.stringify(res?.data);
+        router.push({
+          pathname: "/taskCreator/creatorPaymentSystem/creatorCheckout",
+          params: {
+            taskDetails: jsonTaskData,
+          },
+        });
       }
     } catch (error: any) {
       console.log(error, "Not created your task please try again");
@@ -168,10 +157,7 @@ const BuyTasks = () => {
               ) : (
                 socialMediaList?.data.map((item: any) => {
                   const isChecked = selectedId === item?.id;
-                  console.log(
-                    item?.icon_url,
-                    "this is image url -------------->"
-                  );
+
                   return (
                     <TouchableOpacity
                       activeOpacity={0.6}
@@ -344,15 +330,10 @@ const BuyTasks = () => {
             </View>
 
             <PrimaryButton
-              loading={isCreateTaskLoading || isBrandPaymentLoading}
+              loading={isCreateTaskLoading}
               buttonText="Make Payment"
               buttonContainerStyle={tw`mb-2`}
-              onPress={
-                () => handleCreateTask()
-                // router.push(
-                //   "/taskPerformerSection/withdrawProcedures/withdrawProcedure"
-                // )
-              }
+              onPress={() => handleCreateTask()}
             />
           </ScrollView>
         </ViewProvider>

@@ -201,9 +201,10 @@ const Wallet = () => {
                     );
                   } else {
                     router.push({
-                      pathname: "/Toaster",
+                      pathname:
+                        "/taskPerformerSection/withdrawAmountDetailsSucees",
                       params: {
-                        res: "this task prepaid for payment ",
+                        amount: currencyValue,
                       },
                     });
                   }

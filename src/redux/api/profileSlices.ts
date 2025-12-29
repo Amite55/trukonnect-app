@@ -7,7 +7,7 @@ const profileSlices = api.injectEndpoints({
         url: "app/my/profile",
         method: "GET",
       }),
-      providesTags: ["Profile"],
+      providesTags: ["Profile", "payment"],
     }),
     editProfile: builder.mutation<any, any>({
       query: (data) => ({

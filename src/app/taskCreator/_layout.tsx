@@ -8,6 +8,7 @@ const _layout = () => {
       <Stack.Screen name="completeOrderTask" />
       <Stack.Screen name="myTaskDetails" />
       <Stack.Screen name="editTask" />
+      <Stack.Screen name="creatorPaymentSystem" />
     </Stack>
   );
 };
