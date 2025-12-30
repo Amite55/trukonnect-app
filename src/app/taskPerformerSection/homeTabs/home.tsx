@@ -1,12 +1,12 @@
 import HomeProfileBar from "@/src/Components/HomeProfileBar";
 import TaskCard from "@/src/Components/TaskCard";
 import ViewProvider from "@/src/Components/ViewProvider";
-import { ServiceData } from "@/src/Data/DataAll";
 import { useProfile } from "@/src/hooks/useProfile";
 import { helpers } from "@/src/lib/helper";
 import TaskCardSkeletonList from "@/src/lib/Skeleton/TasksSkeletion";
 import tw from "@/src/lib/tailwind";
 import { useLazyGetTaskesQuery } from "@/src/redux/api/performarSlices";
+import { useGetAllSocialQuery } from "@/src/redux/api/profileSlices";
 import { router } from "expo-router";
 import React from "react";
 import {
@@ -26,12 +26,15 @@ const Home = () => {
   // ================= api end point call ======================
   const [takes, { data: taksResult, isLoading, isError }] =
     useLazyGetTaskesQuery();
+  const { data: allSocial, isLoading: isALLSocialLoading } =
+    useGetAllSocialQuery({});
 
   React.useEffect(() => {
     const fetchData = async () => {
       await takes({
         per_page: 10,
         page: 1,
+        search: "",
         category: selectedService === "All" ? "" : selectedService,
         _timestamp: Date.now(),
       });
@@ -58,6 +61,15 @@ const Home = () => {
     }
   };
 
+  // ---------------  append all  social status ----------------
+  const staticSocial = {
+    id: "all",
+    social: {
+      name: "All",
+    },
+  };
+  const mergedSocialList = [staticSocial, ...(allSocial?.data || [])];
+
   return (
     <ViewProvider containerStyle={tw`flex-1 px-4`}>
       <ScrollView
@@ -75,34 +87,33 @@ const Home = () => {
 
         {/* ------------------------- Services list  category ----------------   */}
         <FlatList
-          data={ServiceData}
+          data={mergedSocialList}
           horizontal={true}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item, index) => index.toString()}
+          keyExtractor={(item) => item?.id?.toString()}
           contentContainerStyle={tw`flex-row py-2`}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => setSelectedService(item?.title)}
+              onPress={() => setSelectedService(item?.social?.name)}
               style={[
                 tw`mr-4 px-6 py-3 border border-borderColor rounded-3xl `,
-                selectedService === item?.title && tw`bg-primaryBtn`,
+                selectedService === item?.social?.name && tw`bg-primaryBtn`,
               ]}
             >
               <Text
                 style={[
                   tw`text-subtitle`,
-                  selectedService === item?.title && tw`text-white500`,
+                  selectedService === item?.social?.name && tw`text-white500`,
                 ]}
               >
-                {item?.title}
+                {item?.social?.name}
               </Text>
             </TouchableOpacity>
           )}
         />
 
         {/* =============================== service item ================================ */}
-
         <View style={tw`flex-row justify-between items-center mt-4 mb-4`}>
           <Text style={tw`font-HalyardDisplaySemiBold text-2xl text-white500`}>
             Available tasks for you
