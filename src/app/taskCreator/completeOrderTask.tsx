@@ -335,7 +335,7 @@ const CompleteOrderTask = () => {
                         <Text
                           style={tw`font-HalyardDisplaySemiBold text-base text-primaryBtn`}
                         >
-                          {Number(taskDetails?.data?.unite_price).toFixed(2)}
+                          {Number(taskDetails?.data?.unite_price).toFixed(3)}
                         </Text>
                       </View>
                     </View>

@@ -27,7 +27,7 @@ const PaymentSuccessScreen = () => {
         <View style={tw`bg-white rounded-xl p-4 mt-6`}>
           <InfoRow
             label="Transaction ID"
-            value={`${parseSuccessData?.response?.trnxId}`}
+            value={`${parseSuccessData?.response?.trnxId}` || "N/A"}
           />
         </View>
         <Text

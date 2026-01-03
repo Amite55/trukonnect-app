@@ -137,7 +137,7 @@ const YoutubeVideo = () => {
         <View style={tw`flex-row items-start gap-2 pt-6`}>
           <SvgXml xml={IconWarring} />
           <Text style={tw`font-HalyardDisplayRegular text-base text-white500`}>
-            Skipping or closing the video will cancel your conversionprocess.
+            Skipping or closing the video will cancel your conversion process.
           </Text>
         </View>
       </ScrollView>

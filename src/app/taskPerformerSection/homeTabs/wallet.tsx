@@ -25,8 +25,9 @@ import {
 import { SvgXml } from "react-native-svg";
 
 const Wallet = () => {
-  const [currencyValue, setCurrencyValue] = React.useState(0);
+  const [currencyValue, setCurrencyValue] = React.useState("");
   const [inputValue, setInputValue] = React.useState("");
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [isKeyboardVisible, setKeyboardVisible] = React.useState(false);
   const profileData = useProfile();
@@ -54,6 +55,24 @@ const Wallet = () => {
       hide.remove();
     };
   }, []);
+
+  const handleAmountChange = (text: string) => {
+    // if (text.includes(".")) {
+    //   router.push({
+    //     pathname: "/Toaster",
+    //     params: {
+    //       res: "Please enter valid amount",
+    //     },
+    //   });
+    //   return;
+    // }
+    const regex = /^\d*\.?\d{0,3}$/;
+    if (!regex.test(text)) {
+      return;
+    }
+
+    setCurrencyValue(text);
+  };
 
   return (
     <KeyboardAvoidingView
@@ -88,7 +107,9 @@ const Wallet = () => {
                   <Text
                     style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
                   >
-                    {Number(walletData?.data?.[0]?.earn_token).toFixed(1)}
+                    {walletData?.data?.[0]?.earn_token
+                      ? Number(walletData?.data?.[0]?.earn_token).toFixed(0)
+                      : 0}
                   </Text>
                 </View>
               </View>
@@ -103,10 +124,13 @@ const Wallet = () => {
                 <Text
                   style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
                 >
-                  {walletData?.data?.[0]?.country?.currency_code}{" "}
-                  {Number(walletData?.data?.[0]?.country?.token_rate).toFixed(
-                    3
-                  )}
+                  {walletData?.data?.[0]?.country?.token_rate
+                    ? walletData?.data?.[0]?.country?.currency_code +
+                      " " +
+                      Number(
+                        walletData?.data?.[0]?.country?.token_rate
+                      ).toFixed(3)
+                    : "Not Available"}
                 </Text>
               </View>
 
@@ -121,7 +145,7 @@ const Wallet = () => {
                   style={tw`font-HalyardDisplaySemiBold text-xl text-white500`}
                 >
                   {walletData?.data?.[0]?.country?.currency_code}{" "}
-                  {Number(walletData?.data?.[0]?.balance).toFixed(3)}
+                  {Number(walletData?.data?.[0]?.balance).toFixed(3) || 0}
                 </Text>
               </View>
 
@@ -158,11 +182,12 @@ const Wallet = () => {
             >
               <SvgXml xml={IconCurrency} />
               <TextInput
+                value={currencyValue}
                 placeholder="Enter the amount for Withdrawal"
                 placeholderTextColor="#A4A4A4"
                 style={tw`w-full text-white500`}
-                onChangeText={(value) => setCurrencyValue(value as any)}
-                keyboardType="numeric"
+                onChangeText={handleAmountChange}
+                keyboardType="decimal-pad"
               />
             </View>
             {/* ====================== notice ------------------ */}

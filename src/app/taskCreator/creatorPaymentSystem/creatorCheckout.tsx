@@ -123,7 +123,6 @@ const CreatorCheckout = () => {
                   setCustomerNumber(v);
                 }}
                 value={customerNumber}
-                // defaultValue={"1212121"}
                 placeholder="Enter your phone number"
                 placeholderTextColor="#A4A4A4"
                 keyboardType="phone-pad"
@@ -132,14 +131,13 @@ const CreatorCheckout = () => {
 
               <View style={tw`bg-inputBgColor h-14 rounded-lg  mt-3`}>
                 <Dropdown
-                  // disable={selectedId ? false : true}
                   style={tw.style(`h-14 rounded-lg px-4 bg-inputBgColor `)}
                   placeholderStyle={tw`text-sm text-subtitle`}
                   selectedTextStyle={tw`text-base text-white500`}
                   containerStyle={tw`bg-black rounded-lg`}
                   itemTextStyle={tw`text-white`}
                   activeColor="rgba(255,255,255,0.1)"
-                  placeholder="Select the engagement type"
+                  placeholder="Choose Network Code"
                   data={dropdownValue}
                   dropdownPosition="bottom"
                   maxHeight={300}
